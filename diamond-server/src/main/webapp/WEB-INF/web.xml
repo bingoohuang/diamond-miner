@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+          http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+    <!-- spring监听器 -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- 编码过滤器 -->
+    <filter>
+        <filter-name>encodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>UTF-8</param-value>
+        </init-param>
+    </filter>
+    <!-- 授权过滤器 -->
+    <filter>
+        <filter-name>authorizationFilter</filter-name>
+        <filter-class>org.n3r.diamond.server.listener.AuthorizationFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>encodingFilter</filter-name>
+        <url-pattern>*.do</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>authorizationFilter</filter-name>
+        <url-pattern>/jsp/admin/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>authorizationFilter</filter-name>
+        <url-pattern>/admin.do</url-pattern>
+    </filter-mapping>
+    <!-- spring mvc -->
+    <servlet>
+        <servlet-name>diamond</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ConfigServlet</servlet-name>
+        <servlet-class>org.n3r.diamond.server.controller.DiamondServlet</servlet-class>
+        <load-on-startup>-1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>diamond</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ConfigServlet</servlet-name>
+        <url-pattern>/content</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>/jsp/login.jsp</welcome-file>
+    </welcome-file-list>
+
+    <error-page>
+        <error-code>500</error-code>
+        <location>/jsp/500.jsp</location>
+    </error-page>
+
+</web-app>
