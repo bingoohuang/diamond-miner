@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
-          http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee">
+    <display-name>diamond server</display-name>
 
-    <!-- spring监听器 -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
-    <!-- 编码过滤器 -->
     <filter>
         <filter-name>encodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
@@ -18,27 +14,23 @@
             <param-value>UTF-8</param-value>
         </init-param>
     </filter>
-    <!-- 授权过滤器 -->
     <filter>
         <filter-name>authorizationFilter</filter-name>
         <filter-class>org.n3r.diamond.server.listener.AuthorizationFilter</filter-class>
     </filter>
-
     <filter-mapping>
         <filter-name>encodingFilter</filter-name>
         <url-pattern>*.do</url-pattern>
     </filter-mapping>
-
     <filter-mapping>
         <filter-name>authorizationFilter</filter-name>
         <url-pattern>/jsp/admin/*</url-pattern>
     </filter-mapping>
-
     <filter-mapping>
         <filter-name>authorizationFilter</filter-name>
         <url-pattern>/admin.do</url-pattern>
     </filter-mapping>
-    <!-- spring mvc -->
+
     <servlet>
         <servlet-name>diamond</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -59,6 +51,22 @@
     <servlet-mapping>
         <servlet-name>ConfigServlet</servlet-name>
         <url-pattern>/content</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>jsp</servlet-name>
+        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
+        <load-on-startup>3</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+        <url-pattern>*.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>jsp</servlet-name>
+        <url-pattern>*.jspx</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>
