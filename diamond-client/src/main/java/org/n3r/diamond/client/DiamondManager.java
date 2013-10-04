@@ -8,7 +8,7 @@ public class DiamondManager {
     private DiamondSubscriber diamondSubscriber = DiamondSubscriber.getInstance();
 
     private final DiamondStone.DiamondAxis diamondAxis;
-    private int timeoutMillis = 1000;  // 从网络获取配置信息的超时，单位毫秒
+    private int timeoutMillis = 10000;  // 从网络获取配置信息的超时，单位毫秒
 
     public DiamondManager(String dataId) {
         this(Constants.DEFAULT_GROUP, dataId);

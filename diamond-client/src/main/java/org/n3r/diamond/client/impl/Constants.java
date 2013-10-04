@@ -2,6 +2,7 @@ package org.n3r.diamond.client.impl;
 
 public interface Constants {
     String SERVER_ADDRESS = "DiamondServer.address";
+    String NAME_SERVER_ADDRESS = "NameServer.address";
 
     // 本地文件监视目录
     String DATA_DIR = "config-data";

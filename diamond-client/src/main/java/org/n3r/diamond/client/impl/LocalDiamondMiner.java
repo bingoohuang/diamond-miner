@@ -13,15 +13,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static java.io.File.separator;
 import static org.n3r.diamond.client.impl.Constants.*;
 
 class LocalDiamondMiner {
     private Logger log = LoggerFactory.getLogger(LocalDiamondMiner.class);
-    private ScheduledExecutorService singleExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private Map<String/* filePath */, Long/* timestamp */> existFilesTimestamp = new HashMap<String, Long>();
 
@@ -35,7 +32,7 @@ class LocalDiamondMiner {
      *
      * @param force 强制获取，在没有变更的时候不返回null
      */
-    public String getLocal(DiamondMeta diamondMeta, boolean force)  {
+    public String getLocal(DiamondMeta diamondMeta, boolean force) {
         String filePath = getFilePath(diamondMeta.getDiamondAxis());
         if (!existFilesTimestamp.containsKey(filePath)) {
             if (diamondMeta.isUseLocal()) diamondMeta.clear();
@@ -88,10 +85,7 @@ class LocalDiamondMiner {
         if (running) return;
 
         running = true;
-        if (singleExecutor == null || singleExecutor.isTerminated())
-            singleExecutor = Executors.newSingleThreadScheduledExecutor();
-
-        rootPath = managerConfig.getFilePath() + separator + DATA_DIR ;
+        rootPath = managerConfig.getFilePath() + separator + DATA_DIR;
 
         initDataDir();
         startCheckLocalDir();
@@ -146,10 +140,7 @@ class LocalDiamondMiner {
 
     public synchronized void stop() {
         if (!running) return;
-
         running = false;
-        singleExecutor.shutdownNow();
-        singleExecutor = null;
 
         if (monitor != null) try {
             monitor.stop();

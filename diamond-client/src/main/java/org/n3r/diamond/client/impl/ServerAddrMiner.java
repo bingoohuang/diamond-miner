@@ -97,9 +97,27 @@ class ServerAddrMiner {
             return;
         }
 
-        reloadServerAddresses();
-        if (!diamondManagerConf.hasDiamondServers())
-            throw new RuntimeException("当前没有可用的服务器列表");
+        if (reloadServerAddresses()) return;
+        if (readClassPathServerAddress()) return;
+
+        throw new RuntimeException("当前没有可用的服务器列表");
+    }
+
+    private boolean readClassPathServerAddress() {
+        InputStream is = null;
+        try {
+            is = getClass().getClassLoader().getResourceAsStream(Constants.SERVER_ADDRESS);
+            List<String> serverAddress = IOUtils.readLines(is);
+            log.info("在同步获取服务器列表时，向classpath {}获取到了服务器列表", Constants.SERVER_ADDRESS);
+            diamondManagerConf.setDomainNames(serverAddress);
+            return true;
+        } catch (IOException e) {
+            log.error("fail to read classpath server address file " + Constants.SERVER_ADDRESS);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+        return false;
+
     }
 
     protected void asynAcquireServerAddress() {
@@ -123,11 +141,11 @@ class ServerAddrMiner {
         }
     }
 
-    private void reloadServerAddresses() {
+    private boolean reloadServerAddresses() {
         log.info("从本地获取Diamond地址列表");
         try {
             File serverAddressFile = generateLocalFile();
-            if (!serverAddressFile.exists()) return;
+            if (!serverAddressFile.exists()) return false;
 
             List<String> addresses = FileUtils.readLines(serverAddressFile);
             for (String address : addresses) {
@@ -136,11 +154,14 @@ class ServerAddrMiner {
                     diamondManagerConf.getDomainNames().add(address);
             }
 
-            if (diamondManagerConf.getDomainNames().size() > 0)
+            if (diamondManagerConf.getDomainNames().size() > 0) {
                 log.info("在同步获取服务器列表时，本地指定了服务器列表，不进行同步");
+                return true;
+            }
         } catch (Exception e) {
             log.error("从本地文件取服务器地址失败", e);
         }
+        return false;
     }
 
     private File generateLocalFile() {
@@ -201,10 +222,10 @@ class ServerAddrMiner {
         String nameServerAddr = null;
         InputStream is = null;
         try {
-            is = getClass().getClassLoader().getResourceAsStream(Constants.SERVER_ADDRESS);
+            is = getClass().getClassLoader().getResourceAsStream(Constants.NAME_SERVER_ADDRESS);
             nameServerAddr = IOUtils.toString(is);
         } catch (IOException e) {
-            log.error("fail to read classpath server address file " + Constants.SERVER_ADDRESS);
+            log.error("fail to read classpath name server address file " + Constants.NAME_SERVER_ADDRESS);
         } finally {
             IOUtils.closeQuietly(is);
         }

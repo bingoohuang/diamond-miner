@@ -49,7 +49,7 @@ public class DiamondCache {
     private Object futureGet(DiamondStone.DiamondAxis diamondAxis,
                              String diamondContent, Future<Object> future) {
         try {
-            return future.get(1, TimeUnit.SECONDS);
+            return future.get(2, TimeUnit.SECONDS);
         } catch (TimeoutException e) {   // 有限时间内不返回，尝试读取snapshot版本
             log.error("update cache {} timeout, try to use snapshot", diamondContent);
             Object object = snapshotMiner.getCache(diamondAxis);

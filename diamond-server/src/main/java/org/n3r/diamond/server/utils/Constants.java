@@ -3,7 +3,7 @@ package org.n3r.diamond.server.utils;
 public interface Constants {
     String DEFAULT_GROUP = "DEFAULT_GROUP";
     
-    String BASE_DIR = "config-data";
+    String BASE_DIR = "config-dump";
 
 
     String PROBE_MODIFY_REQUEST = "Probe-Modify-Request";
