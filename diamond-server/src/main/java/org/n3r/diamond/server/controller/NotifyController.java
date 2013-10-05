@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
- * 用于其他节点通知的控制器
+ * 用于接收其他节点通知的控制器
  */
 @Controller
 @RequestMapping("/notify.do")
@@ -26,7 +26,7 @@ public class NotifyController {
     public String notifyConfigInfo(@RequestParam("dataId") String dataId, @RequestParam("group") String group) {
         dataId = dataId.trim();
         group = group.trim();
-        this.diamondService.loadConfigInfoToDisk(dataId, group);
+        diamondService.loadConfigInfoToDisk(dataId, group);
         return "200";
     }
 

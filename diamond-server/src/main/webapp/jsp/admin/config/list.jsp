@@ -92,7 +92,7 @@
             <td>
                 <a href="${getConfigInfoUrl}">编辑</a>&nbsp;&nbsp;&nbsp;
                 <a href="${deleteConfigInfoUrl}" onclick="return confirmForDelete();">删除</a>&nbsp;&nbsp;&nbsp;
-                <a href="${saveToDiskUrl}" target="_blank">通知</a> &nbsp;&nbsp;&nbsp;
+                <a href="${saveToDiskUrl}" target="_blank">同步</a> &nbsp;&nbsp;&nbsp;
                 <a href="${previewUrl}" target="_blank">预览</a>
             </td>
         </tr>

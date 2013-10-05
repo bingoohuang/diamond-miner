@@ -62,7 +62,6 @@ public class DiamondService {
             diskService.removeConfigInfo(diamondStone.getDataId(), diamondStone.getGroup());
             contentMD5Cache.remove(createMD5CacheKey(diamondStone.getDataId(), diamondStone.getGroup()));
             persistService.removeConfigInfo(diamondStone);
-            // 通知其他节点
             notifyOtherNodes(diamondStone.getDataId(), diamondStone.getGroup());
 
         } catch (Exception e) {
@@ -77,10 +76,8 @@ public class DiamondService {
         // 保存顺序：先数据库，再磁盘
         try {
             persistService.addConfigInfo(diamondStone);
-            // 切记更新缓存
             contentMD5Cache.put(createMD5CacheKey(dataId, group), diamondStone.getMd5());
             diskService.saveToDisk(diamondStone);
-            // 通知其他节点
             notifyOtherNodes(dataId, group);
         } catch (Exception e) {
             log.error("保存ConfigInfo失败", e);
@@ -102,7 +99,6 @@ public class DiamondService {
 
             diskService.saveToDisk(diamondStone);
 
-            // 通知其他节点
             notifyOtherNodes(dataId, group);
         } catch (Exception e) {
             log.error("保存ConfigInfo失败", e);
@@ -113,11 +109,10 @@ public class DiamondService {
     public void loadConfigInfoToDisk(String dataId, String group) {
         try {
             DiamondStone diamondStone = persistService.findConfigInfo(dataId, group);
-            if (diamondStone != null) {
+            if (diamondStone != null && diamondStone.isValid()) {
                 contentMD5Cache.put(createMD5CacheKey(dataId, group), diamondStone.getMd5());
                 diskService.saveToDisk(diamondStone);
             } else {
-                // 删除文件
                 contentMD5Cache.remove(createMD5CacheKey(dataId, group));
                 diskService.removeConfigInfo(dataId, group);
             }
