@@ -26,13 +26,7 @@ class LocalDiamondMiner {
     private String rootPath = null;
     private FileAlterationMonitor monitor;
 
-
-    /**
-     * 获取本地配置
-     *
-     * @param force 强制获取，在没有变更的时候不返回null
-     */
-    public String getLocal(DiamondMeta diamondMeta, boolean force) {
+    public String checkLocal(DiamondMeta diamondMeta) {
         String filePath = getFilePath(diamondMeta.getDiamondAxis());
         if (!existFilesTimestamp.containsKey(filePath)) {
             if (diamondMeta.isUseLocal()) diamondMeta.clear();
@@ -40,27 +34,34 @@ class LocalDiamondMiner {
             return null;
         }
 
-        if (force) {
-            log.info("主动从本地获取配置数据, {}", diamondMeta.getDiamondAxis());
-
-            return readFileContent(filePath);
-        }
+        diamondMeta.setUseLocal(true);
 
         // 判断是否变更，没有变更，返回null
         if (!filePath.equals(diamondMeta.getLocalFile())
                 || existFilesTimestamp.get(filePath) != diamondMeta.getLocalVersion()) {
             diamondMeta.setLocalFile(filePath);
             diamondMeta.setLocalVersion(existFilesTimestamp.get(filePath));
-            diamondMeta.setUseLocal(true);
             log.info("本地配置数据发生变化, {}", diamondMeta.getDiamondAxis());
 
             return readFileContent(filePath);
         } else {
-            diamondMeta.setUseLocal(true);
             log.debug("本地配置数据没有发生变化,{}", diamondMeta.getDiamondAxis());
 
             return null;
         }
+    }
+
+    public String readLocal(DiamondMeta diamondMeta) {
+        String filePath = getFilePath(diamondMeta.getDiamondAxis());
+        if (!existFilesTimestamp.containsKey(filePath)) {
+            if (diamondMeta.isUseLocal()) diamondMeta.clear();
+
+            return null;
+        }
+
+        log.info("主动从本地获取配置数据, {}", diamondMeta.getDiamondAxis());
+
+        return readFileContent(filePath);
     }
 
     String readFileContent(String filePath) {

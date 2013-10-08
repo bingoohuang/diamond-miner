@@ -3,7 +3,6 @@ package org.n3r.diamond.client.cache;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.Futures;
-import static org.apache.commons.lang3.StringUtils.*;
 import org.joor.Reflect;
 import org.n3r.diamond.client.DiamondStone;
 import org.n3r.diamond.client.impl.DiamondSubstituter;
@@ -12,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.*;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class DiamondCache {
     private final SnapshotMiner snapshotMiner;
@@ -24,26 +25,27 @@ public class DiamondCache {
     }
 
     public Object getCache(final DiamondStone.DiamondAxis diamondAxis, final String diamondContent) {
-        Future<Object> cachedObject = cache.getIfPresent(diamondAxis);
-        if (cachedObject != null) return futureGet(diamondAxis, diamondContent, cachedObject);
-
-        Callable<Object> task = new Callable<Object>() {
+        Callable<Future<Object>> callable = new Callable<Future<Object>>() {
             @Override
-            public Object call() throws Exception {
-                return updateCache(diamondAxis, diamondContent);
+            public Future<Object> call() throws Exception {
+                return executorService.submit(new Callable<Object>() {
+                    @Override
+                    public Object call() throws Exception {
+                        return updateCache(diamondAxis, diamondContent);
+                    }
+                });
             }
         };
 
-        Future<Object> future;
-        synchronized (this) {
-            future = cache.getIfPresent(diamondAxis);
-            if (future == null) {
-                future = executorService.submit(task);
-                cache.put(diamondAxis, future);
-            }
+        Future<Object> cachedObject;
+        try {
+            cachedObject = cache.get(diamondAxis, callable);
+        } catch (ExecutionException e) {
+            log.error("get cache {} failed", diamondContent, e);
+            return null;
         }
 
-        return futureGet(diamondAxis, diamondContent, future);
+        return futureGet(diamondAxis, diamondContent, cachedObject);
     }
 
     private Object futureGet(DiamondStone.DiamondAxis diamondAxis,
@@ -98,7 +100,7 @@ public class DiamondCache {
         try {
             diamondCache = diamondCachable.call();
         } catch (Exception e) {
-            log.error("{} called with exception", diamondContent , e);
+            log.error("{} called with exception", diamondContent, e);
             removeCacheSnapshot(diamondAxis);
         }
 

@@ -149,15 +149,11 @@ public class DiamondSubscriber implements Closeable {
     }
 
 
-    public String getLocal(DiamondMeta diamondMeta) throws IOException {
-        return localDiamondMiner.getLocal(diamondMeta, false);
-    }
-
     public String getDiamondLocalFirst(DiamondStone.DiamondAxis diamondAxis, long timeout) {
         DiamondMeta diamondMeta = getCacheData(diamondAxis);
         // 优先使用本地配置
         try {
-            String localConfig = localDiamondMiner.getLocal(diamondMeta, true);
+            String localConfig = localDiamondMiner.readLocal(diamondMeta);
             if (localConfig != null) {
                 diamondMeta.incSuccCounterAndGet();
                 saveSnapshot(diamondAxis, localConfig);
@@ -254,7 +250,7 @@ public class DiamondSubscriber implements Closeable {
             final DiamondMeta diamondMeta = entry.getValue();
 
             try {
-                String content = getLocal(diamondMeta);
+                String content = localDiamondMiner.checkLocal(diamondMeta);
                 if (null != content) {
                     log.info("本地配置信息被读取, {}", diamondMeta.getDiamondAxis());
 

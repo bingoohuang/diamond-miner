@@ -36,4 +36,7 @@ public class DiamondManager {
         return diamondSubscriber.getCache(diamondAxis, timeoutMillis);
     }
 
+    public void setTimeoutMillis(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+    }
 }
