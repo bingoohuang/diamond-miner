@@ -2,6 +2,7 @@ package org.n3r.diamond.server.service;
 
 import com.google.common.net.HostAndPort;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.utils.Constants;
 import org.slf4j.Logger;
@@ -12,13 +13,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
-
-import static org.springframework.util.StringUtils.hasLength;
 
 @Service
 public class NotifyService {
@@ -35,10 +33,22 @@ public class NotifyService {
 
     @PostConstruct
     public void loadNodes() {
-        // 多行ip\:port=[specialUrl]
+        // 多行ip:port=[specialUrl]
         DiamondStone info = diamondService.findConfigInfo("nameservers", "admin");
         try {
-            if (info != null) nodeProps.load(IOUtils.toInputStream(info.getContent()));
+            if (info != null) {
+                List<String> lines = IOUtils.readLines(IOUtils.toInputStream(info.getContent()));
+                for (String line : lines) {
+                    int equalPos = line.indexOf('=');
+                    if (equalPos < 0) {
+                        nodeProps.put(line.trim(), "");
+                    } else {
+                        String key = line.substring(0, equalPos);
+                        String value = equalPos < line.length() - 1 ? line.substring(equalPos + 1) : "";
+                        nodeProps.put(key.trim(), value.trim());
+                    }
+                }
+            }
         } catch (IOException e) {
             log.error("加载节点配置文件失败");
         }
@@ -50,7 +60,7 @@ public class NotifyService {
         Enumeration<?> enu = nodeProps.propertyNames();
         while (enu.hasMoreElements()) {
             String address = (String) enu.nextElement();
-            if (address.contains(LOCAL_IP)) continue;
+            // if (address.contains(LOCAL_IP)) continue;
 
             String urlString = generateNotifyConfigInfoPath(dataId, group, address);
             final String result = invokeURL(urlString);
@@ -67,7 +77,7 @@ public class NotifyService {
                 + hostAndPort.getPortOrDefault(Constants.DEF_DIAMOND_NAMESERVER_PORT)
                 + URL_PREFIX;
         // 如果有指定url，使用指定的url
-        if (specialUrl != null && hasLength(specialUrl.trim())) urlString = specialUrl;
+        if (StringUtils.isNotBlank(specialUrl)) urlString = specialUrl;
 
         return urlString + "?method=notifyConfigInfo&dataId=" + dataId + "&group=" + group;
     }
@@ -83,34 +93,11 @@ public class NotifyService {
             conn.connect();
             return IOUtils.toString(conn.getInputStream());
         } catch (Exception e) {
-            log.error("http调用失败,url=" + urlString, e);
+            log.error("http调用失败,url=" + urlString, e.toString());
         } finally {
             if (conn != null) conn.disconnect();
         }
         return "error";
     }
-
-
-    public static final String LOCAL_IP = getLocalHostAddress();
-
-    private static String getLocalHostAddress() {
-        String address = "127.0.0.1";
-        try {
-            Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
-            while (en.hasMoreElements()) {
-                NetworkInterface ni = en.nextElement();
-                Enumeration<InetAddress> ads = ni.getInetAddresses();
-                while (ads.hasMoreElements()) {
-                    InetAddress ip = ads.nextElement();
-                    if (!ip.isLoopbackAddress() && ip.isSiteLocalAddress()) {
-                        return ip.getHostAddress();
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
-        return address;
-    }
-
 
 }

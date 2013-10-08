@@ -21,13 +21,10 @@ class DiamondHttpClient {
     private MultiThreadedHttpConnectionManager connectionManager;
     private Logger log = LoggerFactory.getLogger(DiamondHttpClient.class);
     private final DiamondManagerConf diamondManagerConf;
-    private final AtomicInteger domainNamePos;
     private HttpClient httpClient;
 
-    public DiamondHttpClient(DiamondManagerConf diamondManagerConf,
-                             AtomicInteger domainNamePos) {
+    public DiamondHttpClient(DiamondManagerConf diamondManagerConf) {
         this.diamondManagerConf = diamondManagerConf;
-        this.domainNamePos = domainNamePos;
 
         if (MockDiamondServer.isTestMode()) return;
 
@@ -49,7 +46,7 @@ class DiamondHttpClient {
     }
 
     private void setHostConfig() {
-        String hostPort = diamondManagerConf.getDomainNames().get(domainNamePos.get());
+        String hostPort = diamondManagerConf.getDomainName();
         HostAndPort hostAndPort = HostAndPort.fromString(hostPort);
         int portOrDefault = hostAndPort.getPortOrDefault(Constants.DEFAULT_DIAMOND_SERVER_PORT);
         HostConfiguration hostConfiguration = httpClient.getHostConfiguration();

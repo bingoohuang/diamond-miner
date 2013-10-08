@@ -2,11 +2,14 @@ package org.n3r.diamond.server.service;
 
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -20,16 +23,25 @@ public class DiskService {
     private Logger log = LoggerFactory.getLogger(DiskService.class);
     private String filePath;
 
-    public DiskService() {
-        filePath = System.getProperty("user.home") + separator + ".diamond-server";
+    @Autowired
+    private ServerProperties serverProperties;
+
+    private String getOrCreateFilePath() {
+        if (StringUtils.isNotEmpty(filePath)) return filePath;
+
+        filePath = System.getProperty("user.home") + separator + ".diamond-server" + serverProperties.getDumpPostfix();
+        log.info("create dump home dir {} with posfix {}", filePath, serverProperties.getDumpPostfix());
+
         File dir = new File(filePath);
         dir.mkdirs();
         if (!dir.exists()) throw new RuntimeException("创建diamond-miner目录失败：" + filePath);
+
+        return filePath;
     }
 
 
     public File getDiamondFile(String dataId, String group) {
-        File diamondFile = new File(filePath + separator + BASE_DIR
+        File diamondFile = new File(getOrCreateFilePath() + separator + BASE_DIR
                 + separator + group + separator + dataId + DIAMOND_STONE_EXT);
 
         return diamondFile;
@@ -81,7 +93,7 @@ public class DiskService {
 
 
     private String getFilePath(String dir) throws FileNotFoundException {
-        return filePath + separator + dir; // // WebUtils.getRealPath(servletContext,
+        return getOrCreateFilePath() + separator + dir; // // WebUtils.getRealPath(servletContext,
     }
 
 

@@ -1,15 +1,24 @@
 package org.n3r.diamond.client.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.n3r.diamond.client.impl.Constants.*;
 
 public class DiamondManagerConf {
+    private Logger log = LoggerFactory.getLogger(DiamondManagerConf.class);
+
     private volatile int pollingInterval = POLLING_INTERVAL; // 异步查询的间隔时间
     private volatile int onceTimeout = ONCE_TIMEOUT; // 获取对于一个DiamondServer所对应的查询一个DataID对应的配置信息的Timeout时间
     private volatile int receiveWaitTime = RECV_WAIT_TIMEOUT; // 同步查询一个DataID所花费的时间
+
+    private AtomicInteger domainNamePos = new AtomicInteger(0);
 
     private volatile List<String> domainNames = new LinkedList<String>();
 
@@ -225,5 +234,32 @@ public class DiamondManagerConf {
         this.localFirst = localFirst;
     }
 
+
+    public String getDomainName() {
+        return domainNames.get(domainNamePos.get());
+    }
+
+    public void randomDomainNamePos() {
+        if (!domainNames.isEmpty()) {
+            domainNamePos.set(new Random().nextInt(domainNames.size()));
+            log.info("随机DiamondServer域名到：" + getDomainName());
+        }
+    }
+
+    synchronized void rotateToNextDomain() {
+        int index = domainNamePos.incrementAndGet();
+        if (index < 0) index = -index;
+
+        int domainNameCount = domainNames.size();
+        if (domainNameCount == 0) {
+            log.error("diamond服务器地址列表长度为零, 请联系负责人排查");
+            return;
+        }
+
+        if (domainNames.size() > 0) {
+            domainNamePos.set(index % domainNameCount);
+            log.warn("轮换DiamondServer域名到：" + getDomainName());
+        }
+    }
 
 }

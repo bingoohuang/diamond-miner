@@ -97,8 +97,8 @@ class ServerAddrMiner {
             return;
         }
 
-        if (reloadServerAddresses()) return;
         if (readClassPathServerAddress()) return;
+        if (reloadServerAddresses()) return;
 
         throw new RuntimeException("当前没有可用的服务器列表");
     }

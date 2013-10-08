@@ -5,6 +5,7 @@ import org.apache.commons.io.IOUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.domain.Page;
 import org.n3r.diamond.server.domain.PageHelper;
+import org.n3r.diamond.server.utils.Utils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -12,8 +13,6 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
@@ -98,13 +97,7 @@ public class PersistService {
         Properties props = new Properties();
         InputStream is = null;
         try {
-            String pathname = "diamond-jdbc.properties";
-            File diamondJdbc = new File(pathname);
-            if (diamondJdbc.exists()) {
-                is = new FileInputStream(diamondJdbc);
-            } else {
-                is = getClassPathResourceAsStream(this, pathname);
-            }
+            is = Utils.toInputStreamFromCdOrClasspath("diamond-jdbc.properties", false);
             props.load(is);
         } finally {
             IOUtils.closeQuietly(is);
@@ -113,12 +106,9 @@ public class PersistService {
         return props;
     }
 
-    public static InputStream getClassPathResourceAsStream(Object obj, String resourceName) {
-        return obj.getClass().getClassLoader().getResourceAsStream(resourceName);
-    }
 
     public void addConfigInfo(final DiamondStone diamondStone) {
-        final Long id = jt.queryForObject("SELECT MAX(ID) FROM " + tableName, Long.class);
+        final Long id = jt.queryForObject("select max(id) from " + tableName, Long.class);
 
         String sql = "insert into " + tableName
                 + "(id,data_id,group_id,content,md5,gmt_create,gmt_modified,description,valid) "

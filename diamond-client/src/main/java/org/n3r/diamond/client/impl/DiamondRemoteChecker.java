@@ -9,12 +9,8 @@ import org.n3r.diamond.client.cache.DiamondCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 class DiamondRemoteChecker {
     private final DiamondCache diamondCache;
@@ -27,7 +23,7 @@ class DiamondRemoteChecker {
 
     private volatile DiamondAllListener diamondAllListener = new DiamondAllListener();
 
-    private AtomicInteger domainNamePos = new AtomicInteger(0);
+
     private DiamondHttpClient httpClient;
     private final DiamondManagerConf managerConfig;
     private final DiamondSubscriber diamondSubscriber;
@@ -39,8 +35,8 @@ class DiamondRemoteChecker {
         this.managerConfig = managerConfig;
         this.diamondCache = diamondCache;
 
-        httpClient = new DiamondHttpClient(managerConfig, domainNamePos);
-        randomDomainNamePos();
+        httpClient = new DiamondHttpClient(managerConfig);
+        managerConfig.randomDomainNamePos();
     }
 
     public void addDiamondListener(DiamondStone.DiamondAxis diamondAxis, DiamondListener diamondListener) {
@@ -51,12 +47,6 @@ class DiamondRemoteChecker {
         diamondAllListener.removeDiamondListener(diamondAxis, diamondListener);
     }
 
-    private void randomDomainNamePos() {
-        List<String> domainList = managerConfig.getDomainNames();
-        if (!domainList.isEmpty()) {
-            domainNamePos.set(new Random().nextInt(domainList.size()));
-        }
-    }
 
     public void shutdown() {
         httpClient.shutdown();
@@ -186,18 +176,18 @@ class DiamondRemoteChecker {
                         contentCache.invalidate(diamondAxis);
                         return null;
                     case Constants.SC_SERVICE_UNAVAILABLE:
-                        rotateToNextDomain();
+                        managerConfig.rotateToNextDomain();
                         break;
 
                     default: {
                         log.warn("HTTP State: {} : {} ", getDiamondResult.getHttpStatus(),
                                 httpClient.getState());
-                        rotateToNextDomain();
+                        managerConfig.rotateToNextDomain();
                     }
                 }
             } catch (Exception e) {
                 log.error("获取配置信息IO异常：{}", e.getMessage());
-                rotateToNextDomain();
+                managerConfig.rotateToNextDomain();
             }
         }
 
@@ -228,37 +218,22 @@ class DiamondRemoteChecker {
                     case Constants.SC_OK:
                         return checkResult.getUpdateDataIdsInBody();
                     case Constants.SC_SERVICE_UNAVAILABLE:
-                        rotateToNextDomain();
+                        managerConfig.rotateToNextDomain();
                         break;
                     default:
                         log.warn("获取修改过的DataID列表的请求回应的HTTP State: " + httpStatus);
-                        rotateToNextDomain();
+                        managerConfig.rotateToNextDomain();
                 }
             } catch (Exception e) {
                 log.error("未知异常:{}", e.getMessage());
-                rotateToNextDomain();
+                managerConfig.rotateToNextDomain();
             }
         }
         throw new RuntimeException("获取修改过的DataID列表超时 "
-                + managerConfig.getDomainNames().get(domainNamePos.get())
+                + managerConfig.getDomainName()
                 + ", 超时时间为：" + timeout);
     }
 
-    synchronized void rotateToNextDomain() {
-        int domainNameCount = managerConfig.getDomainNames().size();
-        int index = domainNamePos.incrementAndGet();
-        if (index < 0) index = -index;
-
-        if (domainNameCount == 0) {
-            log.error("diamond服务器地址列表长度为零, 请联系负责人排查");
-            return;
-        }
-
-        domainNamePos.set(index % domainNameCount);
-        if (managerConfig.getDomainNames().size() > 0)
-            log.warn("轮换DiamondServer域名到：" + managerConfig.getDomainNames()
-                    .get(domainNamePos.get()));
-    }
 
     /**
      * 回馈的结果为RP_OK，则整个流程为：<br>
