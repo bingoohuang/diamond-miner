@@ -12,6 +12,9 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,16 +64,19 @@ public class PersistService {
 
     @PostConstruct
     public void initDataSource() throws Exception {
-        // 读取jdbc.properties配置, 加载数据源
-        Properties props = new Properties();
-        InputStream is = null;
-        try {
-            is = getClass().getClassLoader().getResourceAsStream("jdbc.properties");
-            props.load(is);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
+        Properties props = readJdbcProperties();
+        BasicDataSource ds = createBasicDataSource(props);
+        createJdbcTemplate(ds);
+    }
 
+    private void createJdbcTemplate(BasicDataSource ds) {
+        jt = new JdbcTemplate();
+        jt.setDataSource(ds);
+        jt.setMaxRows(MAX_ROWS); // 设置最大记录数，防止内存膨胀
+        jt.setQueryTimeout(QUERY_TIMEOUT); // 设置JDBC执行超时时间
+    }
+
+    private BasicDataSource createBasicDataSource(Properties props) {
         BasicDataSource ds = new BasicDataSource();
 
         driverClassName = getPropStr(props, ("db.driver"));
@@ -85,12 +91,30 @@ public class PersistService {
         ds.setMaxWait(Long.parseLong(getPropStr(props, "db.maxWait")));
         ds.setPoolPreparedStatements(Boolean.parseBoolean(getPropStr(props, "db.poolPreparedStatements")));
 
-        jt = new JdbcTemplate();
-        jt.setDataSource(ds);
-        // 设置最大记录数，防止内存膨胀
-        jt.setMaxRows(MAX_ROWS);
-        // 设置JDBC执行超时时间
-        jt.setQueryTimeout(QUERY_TIMEOUT);
+        return ds;
+    }
+
+    private Properties readJdbcProperties() throws IOException {
+        Properties props = new Properties();
+        InputStream is = null;
+        try {
+            String pathname = "diamond-jdbc.properties";
+            File diamondJdbc = new File(pathname);
+            if (diamondJdbc.exists()) {
+                is = new FileInputStream(diamondJdbc);
+            } else {
+                is = getClassPathResourceAsStream(this, pathname);
+            }
+            props.load(is);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+
+        return props;
+    }
+
+    public static InputStream getClassPathResourceAsStream(Object obj, String resourceName) {
+        return obj.getClass().getClassLoader().getResourceAsStream(resourceName);
     }
 
     public void addConfigInfo(final DiamondStone diamondStone) {
