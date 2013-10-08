@@ -10,13 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 
-
-/**
- * 登录登出控制器
- * 
- * @author boyan
- * @date 2010-5-6
- */
 @Controller
 @RequestMapping("/login.do")
 public class LoginController {
