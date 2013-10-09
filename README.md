@@ -182,27 +182,14 @@ String foobar = DiamondMiner.getString("foobar");
 + The client and server local store tree:
 
 ```
-    ~/.diamond-client
-    |____config-data
-    |____DiamondServer.address
-    |____snapshot
-    | |____DEFAULT_GROUP
-    | | |____foo.cache
-    | | |____foo.diamond
-    | | |____SOLR_URL.diamond
-    
-    ~/.diamond-server
-    |____config-dump
-    | |____admin
-    | | |____users.diamond
-    | |____DEFAULT_GROUP
-    | | |____a1.diamond
-    | | |____bar.diamond
-    | | |____c1.diamond
-    | | |____d1.diamond
-    | | |____foo.diamond
-    | | |____SOLR_URL.diamond
-
+    ~/.diamond-client              ~/.diamond-server
+    |____config-data               |____config-dump
+    |____DiamondServer.address     | |____admin
+    |____snapshot                  | | |____users.diamond
+    | |____DEFAULT_GROUP           | |____DEFAULT_GROUP
+    | | |____foo.cache             | | |____bar.diamond
+    | | |____foo.diamond           | | |____foo.diamond
+    | | |____SOLR_URL.diamond      | | |____SOLR_URL.diamond
 ```
 
 + The client api will lookup config in privileged by order:
