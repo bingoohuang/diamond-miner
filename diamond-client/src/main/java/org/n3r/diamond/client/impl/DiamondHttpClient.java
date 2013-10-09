@@ -37,7 +37,7 @@ class DiamondHttpClient {
         params.setMaxConnectionsPerHost(hostConfiguration, diamondManagerConf.getMaxHostConnections());
         params.setMaxTotalConnections(diamondManagerConf.getMaxTotalConnections());
         params.setConnectionTimeout(diamondManagerConf.getConnectionTimeout());
-        params.setSoTimeout(60 * 1000);  // 设置读超时为1分钟
+        params.setSoTimeout(60 * 1000);  // socket waiting timeout 1 min
 
         connectionManager.setParams(params);
         httpClient = new HttpClient(connectionManager);
@@ -106,13 +106,13 @@ class DiamondHttpClient {
 
     private void setResponseContent(GetMethod getMethod, GetDiamondResult getDiamondResult) {
         String responseContent = getContentFromResponse(getMethod);
-        if (null == responseContent) throw new RuntimeException("RP_OK获取了错误的配置信息");
+        if (null == responseContent) throw new RuntimeException("RP_OK got bad info");
         getDiamondResult.setResponseContent(responseContent);
     }
 
     private void setLastModified(GetMethod getMethod, GetDiamondResult getDiamondResult) {
         Header lastModifiedHeader = getMethod.getResponseHeader(Constants.LAST_MODIFIED);
-        if (null == lastModifiedHeader) throw new RuntimeException("RP_OK返回的结果中没有lastModifiedHeader");
+        if (null == lastModifiedHeader) throw new RuntimeException("RP_OK without lastModifiedHeader");
 
         String lastModified = lastModifiedHeader.getValue();
         getDiamondResult.setLastModified(lastModified);
@@ -120,7 +120,7 @@ class DiamondHttpClient {
 
     private void setMd5(GetMethod getMethod, GetDiamondResult getDiamondResult) {
         Header md5Header = getMethod.getResponseHeader(Constants.CONTENT_MD5);
-        if (null == md5Header) throw new RuntimeException("RP_NO_CHANGE返回的结果中没有MD5码");
+        if (null == md5Header) throw new RuntimeException("RP_NO_CHANGE without MD5");
         getDiamondResult.setMd5(md5Header.getValue());
     }
 
@@ -130,7 +130,7 @@ class DiamondHttpClient {
             try {
                 getDiamondResult.setPollingInterval(Integer.parseInt(spacingIntervalHeaders[0].getValue()));
             } catch (RuntimeException e) {
-                log.error("设置下次间隔时间失败", e);
+                log.error("set polling interval error", e);
             }
         }
     }
@@ -227,7 +227,7 @@ class DiamondHttpClient {
                 gzin = new GZIPInputStream(is);
                 return IOUtils.toString(gzin);
             } catch (Exception e) {
-                log.error("解压缩失败", e);
+                log.error("ungzip error", e);
             } finally {
                 IOUtils.closeQuietly(gzin);
                 IOUtils.closeQuietly(is);
@@ -236,7 +236,7 @@ class DiamondHttpClient {
             try {
                 return httpMethod.getResponseBodyAsString();
             } catch (Exception e) {
-                log.error("获取配置信息失败", e);
+                log.error("getResponseBodyAsString error", e);
             }
         }
 

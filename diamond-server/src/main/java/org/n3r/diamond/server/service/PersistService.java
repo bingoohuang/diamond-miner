@@ -183,37 +183,32 @@ public class PersistService {
     }
 
     public Page<DiamondStone> findConfigInfoByDataId(int pageNo, int pageSize, String dataId) {
-        PageHelper<DiamondStone> helper = new PageHelper<DiamondStone>();
         String sqlCountRows = "select count(id) from " + tableName + " where data_id=?";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
                 " from " + tableName + " where data_id=?";
-        return helper.fetchPage(driverClassName, jt, sqlCountRows,
+        return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{dataId}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
 
     public Page<DiamondStone> findConfigInfoByGroup(int pageNo, int pageSize, String group) {
-        PageHelper<DiamondStone> helper = new PageHelper<DiamondStone>();
         String sqlCountRows = "select count(id) from " + tableName + " where group_id=?";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
                 " from " + tableName + " where group_id=?";
-        return helper.fetchPage(driverClassName, jt, sqlCountRows,
+        return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{group}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
 
     public Page<DiamondStone> findAllConfigInfo(int pageNo, int pageSize) {
-        PageHelper<DiamondStone> helper = new PageHelper<DiamondStone>();
         String sqlCountRows = "select count(id) from " + tableName + " order by id";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
                 " from " + tableName + " order by id ";
-        return helper.fetchPage(driverClassName, jt, sqlCountRows,
+        return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
 
     public Page<DiamondStone> findConfigInfoLike(int pageNo, int pageSize, String dataId, String group) {
         if (isBlank(dataId) && isBlank(group))
             return findAllConfigInfo(pageNo, pageSize);
-
-        PageHelper<DiamondStone> helper = new PageHelper<DiamondStone>();
 
         String sqlCountRows = "select count(id) from " + tableName + " where ";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
@@ -243,7 +238,7 @@ public class PersistService {
             args = new Object[]{createLikeArg(group)};
         }
 
-        return helper.fetchPage(driverClassName, jt, sqlCountRows,
+        return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, args, pageNo, pageSize, STONE_ROW_MAPPER);
     }
 

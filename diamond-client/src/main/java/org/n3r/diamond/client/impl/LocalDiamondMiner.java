@@ -36,16 +36,15 @@ class LocalDiamondMiner {
 
         diamondMeta.setUseLocal(true);
 
-        // 判断是否变更，没有变更，返回null
         if (!filePath.equals(diamondMeta.getLocalFile())
                 || existFilesTimestamp.get(filePath) != diamondMeta.getLocalVersion()) {
             diamondMeta.setLocalFile(filePath);
             diamondMeta.setLocalVersion(existFilesTimestamp.get(filePath));
-            log.info("本地配置数据发生变化, {}", diamondMeta.getDiamondAxis());
+            log.info("local changed, {}", diamondMeta.getDiamondAxis());
 
             return readFileContent(filePath);
         } else {
-            log.debug("本地配置数据没有发生变化,{}", diamondMeta.getDiamondAxis());
+            log.debug("local not modified,{}", diamondMeta.getDiamondAxis());
 
             return null;
         }
@@ -59,7 +58,7 @@ class LocalDiamondMiner {
             return null;
         }
 
-        log.info("主动从本地获取配置数据, {}", diamondMeta.getDiamondAxis());
+        log.info("read local, {}", diamondMeta.getDiamondAxis());
 
         return readFileContent(filePath);
     }
@@ -101,7 +100,7 @@ class LocalDiamondMiner {
                 String grandpaDir = getGrandpaDir(realPath);
                 if (!rootPath.equals(grandpaDir)
                         || !DIAMOND_STONE_EXT.equals("." + FilenameUtils.getExtension(realPath))) {
-                    log.error("无效的文件进入监控目录{} ", file);
+                    log.error("invalid file monitored {} ", file);
                     return;
                 }
 
@@ -163,12 +162,12 @@ class LocalDiamondMiner {
                 String grandpaDir = getGrandpaDir(realPath);
                 if (!rootPath.equals(grandpaDir)
                         || !DIAMOND_STONE_EXT.equals("." + FilenameUtils.getExtension(realPath))) {
-                    log.error("无效的文件进入监控目录{} ", subFile);
+                    log.error("invalid file monitored {} ", subFile);
                     continue;
                 }
 
                 existFilesTimestamp.put(realPath, System.currentTimeMillis());
-                log.info("{}文件被初始添加", realPath);
+                log.info("{} file was added", realPath);
             }
         }
     }
@@ -182,7 +181,7 @@ class LocalDiamondMiner {
     public String getGrandpaDir(String path) {
         File file = new File(path);
         if (file.isDirectory()) {
-            log.error("此路径表达的不是文件{}", path);
+            log.error("{} is not a directory", path);
             return null;
         }
 
@@ -193,7 +192,7 @@ class LocalDiamondMiner {
                 return grandpa.getAbsolutePath();
             }
         }
-        log.error("取得祖父目录失败{}", path);
+        log.error("fail to get grandpa of {}", path);
         return null;
     }
 }

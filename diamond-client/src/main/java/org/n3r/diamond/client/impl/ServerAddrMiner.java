@@ -45,7 +45,7 @@ class ServerAddrMiner {
         running = true;
 
         if (MockDiamondServer.isTestMode()) {
-            diamondManagerConf.addDomainName("测试模式，没有使用的真实服务器");
+            diamondManagerConf.addDomainName("Testing mode");
             return;
         }
 
@@ -84,11 +84,11 @@ class ServerAddrMiner {
         if (diamondManagerConf.hasDiamondServers()) return;
 
         if (acquireServerAddr()) {
-            log.info("在同步获取服务器列表时，获取到了服务器列表");
+            log.info("sync succussfully to get diamond servers");
             saveServerAddrToLocal();
         }
 
-        throw new RuntimeException("当前没有可用的服务器列表");
+        throw new RuntimeException("no diamond servers available");
     }
 
     protected void synAcquireServerAddress() {
@@ -100,7 +100,7 @@ class ServerAddrMiner {
         if (readClassPathServerAddress()) return;
         if (reloadServerAddresses()) return;
 
-        throw new RuntimeException("当前没有可用的服务器列表");
+        throw new RuntimeException("no diamond servers available");
     }
 
     private boolean readClassPathServerAddress() {
@@ -108,8 +108,8 @@ class ServerAddrMiner {
         try {
             is = getClass().getClassLoader().getResourceAsStream(Constants.SERVER_ADDRESS);
             List<String> serverAddress = IOUtils.readLines(is);
-            log.info("在同步获取服务器列表时，向classpath {}获取到了服务器列表", Constants.SERVER_ADDRESS);
-            diamondManagerConf.setDomainNames(serverAddress);
+            log.info("got diamond servers from classpath {}", Constants.SERVER_ADDRESS);
+            diamondManagerConf.setNameServers(serverAddress);
             return true;
         } catch (IOException e) {
             log.error("fail to read classpath server address file " + Constants.SERVER_ADDRESS);
@@ -133,16 +133,16 @@ class ServerAddrMiner {
     }
 
     void saveServerAddrToLocal() {
-        List<String> domainNameList = new ArrayList<String>(diamondManagerConf.getDomainNames());
+        List<String> domainNameList = new ArrayList<String>(diamondManagerConf.getNameServers());
         try {
             FileUtils.writeLines(generateLocalFile(), domainNameList);
         } catch (Exception e) {
-            log.error("存储服务器地址到本地文件失败:{}", e.getMessage());
+            log.error("save diamond servers to local failed ", e.getMessage());
         }
     }
 
     private boolean reloadServerAddresses() {
-        log.info("从本地获取Diamond地址列表");
+        log.info("read diamaond server addresses from local");
         try {
             File serverAddressFile = generateLocalFile();
             if (!serverAddressFile.exists()) return false;
@@ -151,15 +151,15 @@ class ServerAddrMiner {
             for (String address : addresses) {
                 address = address.trim();
                 if (StringUtils.isNotEmpty(address))
-                    diamondManagerConf.getDomainNames().add(address);
+                    diamondManagerConf.getNameServers().add(address);
             }
 
-            if (diamondManagerConf.getDomainNames().size() > 0) {
-                log.info("在同步获取服务器列表时，本地指定了服务器列表，不进行同步");
+            if (diamondManagerConf.getNameServers().size() > 0) {
+                log.info("successfully to read diamaond server addresses from local");
                 return true;
             }
         } catch (Exception e) {
-            log.error("从本地文件取服务器地址失败", e);
+            log.error("failed to read diamaond server addresses from local", e);
         }
         return false;
     }
@@ -170,9 +170,6 @@ class ServerAddrMiner {
         return new File(FilenameUtils.concat(directory, Constants.SERVER_ADDRESS));
     }
 
-    /**
-     * 获取diamond服务器地址列表
-     */
     private boolean acquireServerAddr() {
         setHttpHostConfig();
 
@@ -183,18 +180,18 @@ class ServerAddrMiner {
 
         try {
             if (Constants.SC_OK != httpClient.executeMethod(httpMethod)) {
-                log.warn("没有可用的新服务器列表");
+                log.warn("no diamond servers available\");");
                 return false;
             }
 
             List<String> newDomainNameList = IOUtils.readLines(httpMethod.getResponseBodyAsStream());
             if (newDomainNameList.size() > 0) {
-                log.info("在同步获取服务器列表时，向NameServer服务器获取到了服务器列表");
-                diamondManagerConf.setDomainNames(newDomainNameList);
+                log.info("got diamond servers from NameServer");
+                diamondManagerConf.setNameServers(newDomainNameList);
                 return true;
             }
         } catch (Exception e) {
-            log.error("从{}获取钻石挖掘服务器地址列表失败:{}",
+            log.error("failed to get diamond servers from {} by {}",
                     httpClient.getHostConfiguration().getHost(), e.getMessage());
         } finally {
             httpMethod.releaseConnection();

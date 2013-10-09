@@ -43,7 +43,7 @@ public class SnapshotMiner {
 
 
         } catch (IOException e) {
-            log.error("保存snapshot出错: {}:{}", diamondAxis, content, e);
+            log.error("save snapshot error {} by {}", diamondAxis, content, e);
         }
     }
 
@@ -61,7 +61,6 @@ public class SnapshotMiner {
 
         file.delete();
 
-        // 如果目录没有文件了，删除目录
         if (dir.list().length == 0) dir.delete();
     }
 
@@ -87,9 +86,8 @@ public class SnapshotMiner {
     }
 
     public Object getCache(DiamondStone.DiamondAxis diamondAxis) {
-        String fileContent = null;
         try {
-            fileContent = getFileContent(diamondAxis, DIAMOND_CACHE_EXT);
+            String fileContent = getFileContent(diamondAxis, DIAMOND_CACHE_EXT);
             if (fileContent == null) return null;
 
             return JSON.parse(fileContent);

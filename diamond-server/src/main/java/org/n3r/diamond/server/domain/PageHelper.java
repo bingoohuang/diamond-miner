@@ -10,9 +10,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class PageHelper<E> {
-
-    public Page<E> fetchPage(String driverName, JdbcTemplate jt,
+public class PageHelper {
+    @SuppressWarnings("unchecked")
+    public static <E> Page<E> fetchPage(String driverName, JdbcTemplate jt,
                              String sqlCountRows,
                              String sqlFetchRows,
                              Object args[],
@@ -51,7 +51,7 @@ public class PageHelper<E> {
     }
 
 
-    public String createPageSql(String driverName, String sql, int startRow, int pageSize ) {
+    public static String createPageSql(String driverName, String sql, int startRow, int pageSize ) {
         if (StringUtils.containsIgnoreCase(driverName, "oracle"))
             return createOraclePageSql(sql, startRow, pageSize);
 
@@ -61,11 +61,11 @@ public class PageHelper<E> {
         return sql;
     }
 
-    private String createMySqlPageSql(String sql, int startRow, int pageSize) {
+    private static String createMySqlPageSql(String sql, int startRow, int pageSize) {
         return sql + " LIMIT " + startRow + "," + pageSize;
     }
 
-    private String createOraclePageSql(String sql, int startRow, int pageSize) {
+    private static String createOraclePageSql(String sql, int startRow, int pageSize) {
          return "SELECT * FROM ( SELECT ROW__.*, ROWNUM RN__ FROM ( " + sql
                 + " ) ROW__  WHERE ROWNUM <= " + (startRow + pageSize) + ") WHERE RN__ >= " + startRow;
     }

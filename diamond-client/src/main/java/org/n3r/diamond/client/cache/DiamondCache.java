@@ -75,7 +75,7 @@ public class DiamondCache {
         log.info("start to update cache {}", diamondAxis);
         if (isEmpty(diamondContent)) return null;
 
-        diamondContent = DiamondSubstituter.parse(diamondContent, true);
+        diamondContent = DiamondSubstituter.substitute(diamondContent, true);
 
         Spec spec;
         try {

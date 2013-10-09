@@ -23,15 +23,15 @@ class DiamondUtils {
         try {
             modifiedDataIdsString = URLDecoder.decode(modifiedDataIdsString, "UTF-8");
         } catch (Exception e) {
-            log.error("解码modifiedDataIdsString出错", e);
+            log.error("decode modifiedDataIdsString error", e);
         }
 
         if (log.isInfoEnabled() && modifiedDataIdsString != null) {
             String escaped = StringEscapeUtils.escapeJava(modifiedDataIdsString);
             if (modifiedDataIdsString.startsWith("OK")) {
-                log.debug("探测的返回结果{}", escaped);
+                log.debug("detection respond {}", escaped);
             } else {
-                log.info("探测到数据变化{}", escaped);
+                log.info("changes detected {}", escaped);
             }
         }
 
@@ -44,9 +44,6 @@ class DiamondUtils {
         return modifiedDataIdSet;
     }
 
-    /**
-     * 检测配置信息内容与MD5码是否一致
-     */
     public static boolean checkMd5(String configInfo, String md5) {
         String realMd5 = DigestUtils.md5Hex(configInfo);
         return realMd5 == null ? md5 == null : realMd5.equals(md5);

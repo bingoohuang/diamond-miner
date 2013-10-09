@@ -8,8 +8,8 @@ import java.util.Set;
 
 
 /**
- * 从PropertyPlaceholderConfigurer.java代码中摘出的字符串变量解析的辅助类。
- * 字符串中变量引用形式：
+ * Changed from spring PropertyPlaceholderConfigurer.java.
+ * Support following formats:
  * 1) ${variable}
  * 2) ${variable:defaultValue}
  * 3) ${variabl${letter}} Recursive invocation
@@ -41,18 +41,6 @@ public abstract class DiamondSubstituter {
     private static final int DEF_HOLDER_PREFIX_LEN = DEF_HOLDER_PREFIX.length();
     private static final int DEF_HOLDER_SUFFIX_LEN = DEF_HOLDER_SUFFIX.length();
 
-    /**
-     * Parse the given String value recursively, to be able to resolve
-     * nested Holders (when resolved property values in turn contain
-     * Holders again).
-     *
-     * @param strVal the String value to parse
-     * @return 进行值填充后的字符串
-     */
-    public static String parse(String strVal) {
-        Set<String> visitedHolders = new HashSet<String>();
-        return parse(strVal, visitedHolders, false);
-    }
 
 
     /**
@@ -60,13 +48,10 @@ public abstract class DiamondSubstituter {
      * nested Holders (when resolved property values in turn contain
      * Holders again).
      *
-     * @param strVal           the String value to parse
-     * @param ignoreBadHolders 是否忽略没有的占位符号
-     * @return 进行值填充后的字符串
      */
-    public static String parse(String strVal, boolean ignoreBadHolders) {
+    public static String substitute(String strVal, boolean ignoreBadHolders) {
         Set<String> visitedHolders = new HashSet<String>();
-        return parse(strVal, visitedHolders, ignoreBadHolders);
+        return substitute(strVal, visitedHolders, ignoreBadHolders);
     }
 
     /**
@@ -78,10 +63,9 @@ public abstract class DiamondSubstituter {
      * @param visitedHolders   the Holders that have already been visited
      * @param ignoreBadHolders during the current resolution attempt (used to detect circular references
      *                         between Holders). Only non-null if we're parsing a nested Holder.
-     * @return 进行值填充后的字符串
      */
-    public static String parse(String strVal, Set<String> visitedHolders,
-                               boolean ignoreBadHolders) {
+    public static String substitute(String strVal, Set<String> visitedHolders,
+                                    boolean ignoreBadHolders) {
 
         StringBuffer buf = new StringBuffer(strVal);
         int startIndex = strVal.indexOf(DEF_HOLDER_PREFIX);
@@ -101,13 +85,13 @@ public abstract class DiamondSubstituter {
                             + holder + "' in property definitions");
                 }
                 // Recursive invocation, parsing Holders contained in the Holder key.
-                holder = parse(holder, visitedHolders, ignoreBadHolders);
+                holder = substitute(holder, visitedHolders, ignoreBadHolders);
                 // Now obtain the value for the fully resolved key...
                 String propVal = resolveHolder(holder, SYS_PROPS_MODE_FALLBACK, defValue);
                 if (propVal != null) {
                     // Recursive invocation, parsing Holders contained in the
                     // previously resolved Holder value.
-                    propVal = parse(propVal, visitedHolders, ignoreBadHolders);
+                    propVal = substitute(propVal, visitedHolders, ignoreBadHolders);
                     buf.replace(startIndex, endIndex + DEF_HOLDER_SUFFIX_LEN, propVal);
 
                     startIndex = buf.indexOf(DEF_HOLDER_PREFIX, startIndex + propVal.length());
@@ -205,7 +189,6 @@ public abstract class DiamondSubstituter {
      * after this method is invoked, according to the system properties mode.
      *
      * @param holder       the Holder to resolve
-     * @param defaultValue 默认值
      * @return the resolved value, of <code>null</code> if none
      */
     protected static String resolveHolder(String holder, String defaultValue) {

@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,11 +59,6 @@ public class DiamondSubscriber implements Closeable {
         diamondRemoteChecker.removeDiamondListener(diamondAxis, diamondListener);
     }
 
-    /**
-     * 启动DiamondSubscriber：<br>
-     * 1.阻塞主动获取所有的DataId配置信息<br>
-     * 2.启动定时线程定时获取所有的DataId配置信息<br>
-     */
     public synchronized void start() {
         if (running) return;
 
@@ -81,9 +75,9 @@ public class DiamondSubscriber implements Closeable {
 
         diamondRemoteChecker = new DiamondRemoteChecker(this, managerConfig, diamondCache);
 
-        running = true; // 初始化完毕
+        running = true;
 
-        log.info("当前使用的域名有：{}", managerConfig.getDomainNames());
+        log.info("name servers {}", managerConfig.getNameServers());
 
         rotateCheckDiamonds();
 
@@ -95,36 +89,28 @@ public class DiamondSubscriber implements Closeable {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                close();   // 关闭单例订阅者
+                close();
             }
         });
     }
 
-    /**
-     * 循环探测配置信息是否变化，如果变化，则再次向DiamondServer请求获取对应的配置信息
-     */
     private void rotateCheckDiamonds() {
         scheduler.scheduleWithFixedDelay(new Runnable() {
             public void run() {
                 rotateCheckDiamonsTask();
             }
 
-        }, managerConfig.getPollingInterval(),
+        }, 0,
                 managerConfig.getPollingInterval(), TimeUnit.SECONDS);
     }
 
     private void rotateCheckDiamonsTask() {
-        if (!running) {
-            log.warn("DiamondSubscriber不在运行状态中，退出查询循环");
-            return;
-        }
-
         try {
             checkLocal();
             diamondRemoteChecker.checkRemote();
             checkSnapshot();
         } catch (Exception e) {
-            log.error("循环探测发生异常:{}", e.getMessage());
+            log.error("rotateCheckDiamonsTask error {}", e.getMessage());
         }
     }
 
@@ -134,7 +120,7 @@ public class DiamondSubscriber implements Closeable {
         if (!running) return;
         running = false;
 
-        log.warn("开始关闭DiamondSubscriber");
+        log.warn("start to close DiamondSubscriber");
 
         localDiamondMiner.stop();
         serverAddrMiner.stop();
@@ -145,13 +131,13 @@ public class DiamondSubscriber implements Closeable {
         diamondRemoteChecker.shutdown();
         diamondCache.close();
 
-        log.warn("完成关闭DiamondSubscriber");
+        log.warn("end to close DiamondSubscriber");
     }
 
 
-    public String getDiamondLocalFirst(DiamondStone.DiamondAxis diamondAxis, long timeout) {
+    public String retrieveDiamondLocalAndRemote(DiamondStone.DiamondAxis diamondAxis, long timeout) {
         DiamondMeta diamondMeta = getCacheData(diamondAxis);
-        // 优先使用本地配置
+        // local first
         try {
             String localConfig = localDiamondMiner.readLocal(diamondMeta);
             if (localConfig != null) {
@@ -160,10 +146,9 @@ public class DiamondSubscriber implements Closeable {
                 return localConfig;
             }
         } catch (Exception e) {
-            log.error("获取本地配置文件出错", e);
+            log.error("get local error", e);
         }
 
-        // 获取本地配置失败，从网络取
         String result = diamondRemoteChecker.retrieveRemote(diamondAxis, timeout, true);
         if (result != null) {
             saveSnapshot(diamondAxis, result);
@@ -177,35 +162,19 @@ public class DiamondSubscriber implements Closeable {
         snapshotMiner.saveSnaptshot(diamondAxis, diamondContent);
     }
 
-    /**
-     * 同步获取一份有效的配置信息，按照<strong>本地文件->diamond服务器->上一次正确配置的snapshot</strong>
-     * 的优先顺序获取， 如果这些途径都无效，则返回null
-     */
     public String getDiamond(DiamondStone.DiamondAxis diamondAxis, long timeout) {
-        // 尝试先从本地和网络获取配置信息
         try {
-            String result = getDiamondLocalFirst(diamondAxis, timeout);
+            String result = retrieveDiamondLocalAndRemote(diamondAxis, timeout);
             if (StringUtils.isNotBlank(result)) return result;
         } catch (Exception t) {
             log.error(t.getMessage());
         }
 
-        // 测试模式不使用本地dump
         if (MockDiamondServer.isTestMode()) return null;
 
         return getSnapshot(diamondAxis);
     }
 
-    /**
-     * 同步获取一份有效的配置信息，按照<strong>上一次正确配置的snapshot->本地文件->diamond服务器</strong>
-     * 的优先顺序获取， 如果这些途径都无效，则返回null
-     */
-    public String getDiamondSnapshotFirst(DiamondStone.DiamondAxis diamondAxis, long timeout) {
-        String result = getSnapshot(diamondAxis);
-        if (StringUtils.isNotBlank(result)) return result;
-
-        return getDiamondLocalFirst(diamondAxis, timeout);
-    }
 
     public String getSnapshot(DiamondStone.DiamondAxis diamondAxis) {
         try {
@@ -215,13 +184,9 @@ public class DiamondSubscriber implements Closeable {
 
             return diamondContent;
         } catch (Exception e) {
-            log.error("获取snapshot出错， diamondAxis={}", diamondAxis, e);
+            log.error("getSnapshot error diamondAxis={}", diamondAxis, e);
             return null;
         }
-    }
-
-    public boolean isRunning() {
-        return running;
     }
 
     public void removeSnapshot(DiamondStone.DiamondAxis diamondAxis) {
@@ -232,7 +197,6 @@ public class DiamondSubscriber implements Closeable {
         for (Map.Entry<DiamondStone.DiamondAxis, DiamondMeta> entry : metaCache.asMap().entrySet()) {
             final DiamondMeta diamondMeta = entry.getValue();
 
-            // 没有获取本地配置，也没有从diamond server获取配置成功,则加载上一次的snapshot
             if (diamondMeta.isUseLocal()) continue;
             if (diamondMeta.getFetchCount() > 0) continue;
 
@@ -252,20 +216,17 @@ public class DiamondSubscriber implements Closeable {
             try {
                 String content = localDiamondMiner.checkLocal(diamondMeta);
                 if (null != content) {
-                    log.info("本地配置信息被读取, {}", diamondMeta.getDiamondAxis());
+                    log.info("local config read, {}", diamondMeta.getDiamondAxis());
 
                     diamondRemoteChecker.onDiamondChanged(diamondMeta, content);
                 }
             } catch (Exception e) {
-                log.error("向本地索要配置信息的过程抛异常", e);
+                log.error("check local error", e);
             }
         }
     }
 
 
-    /**
-     * 获取探测更新的DataID的请求字符串(获取check的DataID:Group:MD5串)
-     */
     public String createProbeUpdateString() {
         StringBuilder probeModifyBuilder = new StringBuilder();
         for (Map.Entry<DiamondStone.DiamondAxis, DiamondMeta> entry : metaCache.asMap().entrySet()) {

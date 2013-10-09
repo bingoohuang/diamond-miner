@@ -196,10 +196,12 @@ public class DiamondMiner {
         return timeUnit.convert(miliSeconds, millisecondsTimeUnit);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getCache(String key) {
         return (T) new DiamondManager(key).getCache();
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> T getCache(String group, String dataId) {
         return (T) new DiamondManager(group, dataId).getCache();
     }
@@ -208,7 +210,7 @@ public class DiamondMiner {
         String diamond = new DiamondManager(key).getDiamond();
         if (diamond == null) return null;
 
-        return DiamondSubstituter.parse(diamond, true);
+        return DiamondSubstituter.substitute(diamond, true);
     }
 
     public static String getString(String key, String defaultValue) {
@@ -219,7 +221,7 @@ public class DiamondMiner {
         String diamond = new DiamondManager(group, dataId).getDiamond();
         if (diamond == null) return null;
 
-        return DiamondSubstituter.parse(diamond, true);
+        return DiamondSubstituter.substitute(diamond, true);
     }
 
     public static String getStone(String group, String dataId, String defaultValue) {

@@ -15,7 +15,7 @@ class DiamondMeta {
 
     private volatile boolean useLocal = false;
 
-    private AtomicLong succCounter = new AtomicLong(0);   // 统计成功获取配置信息的次数
+    private AtomicLong succCounter = new AtomicLong(0);
 
     public DiamondMeta(DiamondStone.DiamondAxis diamondAxis) {
         this.diamondAxis = diamondAxis;

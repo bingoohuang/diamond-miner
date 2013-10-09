@@ -56,7 +56,7 @@ public class SpecParser {
                         specState = ch == '(' ? SpecState.ParamOpen : SpecState.SpecClose;
                         spec = addSpec(name, specsDefs);
 
-                        if (specState == SpecState.SpecClose) --i; // 退一位，进入下一步处理
+                        if (specState == SpecState.SpecClose) --i; // backspace and continue
                     } else error(specs, i, ch);
 
                     break;
@@ -116,7 +116,7 @@ public class SpecParser {
             }
         }
 
-        // 检查是否正常结束
+        // Check whether it is normal ended
         switch (specState) {
             case SpecName:
                 addSpec(name, specsDefs);
