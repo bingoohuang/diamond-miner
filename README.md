@@ -81,6 +81,12 @@ If you have the different mysql ip, user or passoword, you can have two way to c
 + update WEB-INF/classes/diamond-server.properties in diamond-server-0.0.1.war.
 
 ## Try to use diamond-client
++ Setup connection info for client
+    * Create DiamondServer.address on the classpath root.
+    * Add one line to DiamondServer.address
+```
+DiamondServer.address
+```
 
 + Simple use examples
 
