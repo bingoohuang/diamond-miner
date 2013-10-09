@@ -1,4 +1,4 @@
-#diamond-miner
+# diamond-miner
 
 a java config system base on taobao diamond, main changes included:
 
@@ -11,19 +11,21 @@ a java config system base on taobao diamond, main changes included:
 + A cache was added to client based on diamond and guava cache.
 + API is simplified to be more friendly.
 
-#Usage
+# Usage
 
 + Setup mysql database and tables
 + Startup diamond-server
 + Try to use diamond-client
 
-##Setup mysql database and tables
+## Setup mysql database and tables
 
 + create database diamond
+
 ```sql
     create database diamond;
 ```
 + create table
+
 ```sql
     create table `diamond_stones` (
         `id` bigint(64) unsigned not null auto_increment,
@@ -39,31 +41,28 @@ a java config system base on taobao diamond, main changes included:
         unique key `uk_diamond_datagroup` (`data_id`,`group_id`)
     ) default charset=utf8;
 ```
+
 + create user
+
 ```sql
     create user 'diamond'@'%' identified by 'diamond';
     grant all privileges on diamond.* to diamond@'%'  identified by 'diamond';
 ```
 
-##Setup diamond-server
+## Setup diamond-server
 
 There are two ways to setup diamond-servers. One is download the diamond-server code and then run mvn jetty:run. The other is download the war package diamond-server-0.0.1.war and then run java -jar diamond-server-0.0.1.war.
 
 + source code way
-
     1. download the diamond-server code from github
-    2. run the command
-
-            mvn jetty:run
+    2. run the command: mvn jetty:run
 
 + war package way
-
-    1. download https://github.com/bingoohuang/diamond-miner/releases/download/v0.0.1/diamond-server-0.0.1.war
-    2. run the command
-
-            java -jar diamond-server-0.0.1.war
+    1. download [diamond-server-0.0.1.war](https://github.com/bingoohuang/diamond-miner/releases/download/v0.0.1/diamond-server-0.0.1.war)
+    2. run the command: java -jar diamond-server-0.0.1.war
 
 The default mysql connection is:
+
 ```
 db.driver=com.mysql.jdbc.Driver
 db.url=jdbc:mysql://localhost:3306/diamond?useUnicode=true&&characterEncoding=UTF-8&connectTimeout=1000&autoReconnect=true
@@ -75,12 +74,13 @@ db.maxIdle=5
 db.maxWait=5
 db.poolPreparedStatements=true
 ```
+
 If you have the different mysql ip, user or passoword, you can have two way to change your connection info:
 
 + place a diamond-server.properties in your current directory(same directory with diamond-server-0.0.1.war)
 + update WEB-INF/classes/diamond-server.properties in diamond-server-0.0.1.war.
 
-##Try to use diamond-client
+## Try to use diamond-client
 
 + Simple use examples
 
@@ -120,79 +120,70 @@ String foobar = DiamondMiner.getString("foobar");
 ```
 
 + Use diamond cache
-
     1. Create a cache updater class, and it should implement Callable interface.
-
             package org.n3r.diamond.client;
-
+            
             import org.n3r.diamond.client.cache.ParamsAppliable;
             import java.util.Arrays;
             import java.util.Date;
             import java.util.concurrent.Callable;
-
+                
             public class DemoUpdater implements Callable<String>, ParamsAppliable {
                 private String param;
-
+                
                 @Override
                 public String call() {
                     return param + new Date();
                 }
-
+                
                 @Override
                 public void applyParams(String[] params) {
                     this.param = Arrays.toString(params);
                 }
             }
-
     2. Add a config like:
 
             dataId=foo, group=DEFAULT_GROUP,
             content=@org.n3r.diamond.client.DemoUpdater("Hello world") @TimestampMark("2013-10-09 10:37:08.123")
-
     3. Get the cache:
 
             String cache = DiamondMiner.getCache("foo");
-
     4. Update the cache manually, any change of config will cause cache updated.
 
-        * Update the @Timestamp without update params changes. like
+            content=@org.n3r.diamond.client.DemoUpdater("Hello world") @TimestampMark("2013-10-09 10:37:10.234")
+            or
+            content=@org.n3r.diamond.client.DemoUpdater("你好，中国") @TimestampMark("2013-10-09 10:37:10.234")
 
-                content=@org.n3r.diamond.client.DemoUpdater("Hello world") @TimestampMark("2013-10-09 10:37:10.234")
-
-        * Update the params. like
-
-                content=@org.n3r.diamond.client.DemoUpdater("你好，中国") @TimestampMark("2013-10-09 10:37:10.234")
 
 # Rantionale
 
 + The client and server local store tree:
 
 ```
-~/.diamond-client
-|____config-data
-|____DiamondServer.address
-|____snapshot
-| |____DEFAULT_GROUP
-| | |____foo.cache
-| | |____foo.diamond
-| | |____SOLR_URL.diamond
-
-~/.diamond-server
-|____config-dump
-| |____admin
-| | |____users.diamond
-| |____DEFAULT_GROUP
-| | |____a1.diamond
-| | |____bar.diamond
-| | |____c1.diamond
-| | |____d1.diamond
-| | |____foo.diamond
-| | |____SOLR_URL.diamond
+    ~/.diamond-client
+    |____config-data
+    |____DiamondServer.address
+    |____snapshot
+    | |____DEFAULT_GROUP
+    | | |____foo.cache
+    | | |____foo.diamond
+    | | |____SOLR_URL.diamond
+    
+    ~/.diamond-server
+    |____config-dump
+    | |____admin
+    | | |____users.diamond
+    | |____DEFAULT_GROUP
+    | | |____a1.diamond
+    | | |____bar.diamond
+    | | |____c1.diamond
+    | | |____d1.diamond
+    | | |____foo.diamond
+    | | |____SOLR_URL.diamond
 
 ```
 
 + The client api will lookup config in privileged by order:
-
     * The local disaster recovery dir(~/.diamond-client/config-data)
     * Httpclient to diamond-server if local cache missed
     * Local snapshot
