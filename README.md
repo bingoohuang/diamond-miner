@@ -72,7 +72,7 @@ mvn package && cd target && java -jar dimaond-server-0.0.1.war
 java -jar diamond-server-0.0.1.war
 ```
 
-The default port of diamond-server is 17002, you can change it by java -Dport=8080 -jar diamond-server-0.0.1.war or mvn -Dport=880 jetty:run。
+The default port of diamond-server is 17002, you can change it by java -Dport=8080 -jar diamond-server-0.0.1.war or mvn -Dport=8080 jetty:run。
 
 The default mysql connection is:
 
