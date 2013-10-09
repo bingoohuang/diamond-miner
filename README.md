@@ -46,7 +46,7 @@ a java config system base on taobao diamond, main changes included:
 
 ```sql
     create user 'diamond'@'%' identified by 'diamond';
-    grant all privileges on diamond.* to diamond@'%'  identified by 'diamond';
+    grant all privileges on diamond.* to diamond@'localhost' identified by 'diamond';
 ```
 
 ## Setup diamond-server
