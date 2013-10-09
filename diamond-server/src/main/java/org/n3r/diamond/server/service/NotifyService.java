@@ -33,7 +33,7 @@ public class NotifyService {
 
     @PostConstruct
     public void loadNodes() {
-        // 多行ip:port=[specialUrl]
+        // multilines ip:port=[specialUrl]
         DiamondStone info = diamondService.findConfigInfo("nameservers", "admin");
         try {
             if (info != null) {
@@ -50,10 +50,10 @@ public class NotifyService {
                 }
             }
         } catch (IOException e) {
-            log.error("加载节点配置文件失败");
+            log.error("load diamond-server nodes failed");
         }
 
-        log.info("节点列表{}", nodeProps);
+        log.info("diamond-server nodes {}", nodeProps);
     }
 
     public void notifyConfigInfoChange(String dataId, String group) {
@@ -64,7 +64,7 @@ public class NotifyService {
 
             String urlString = generateNotifyConfigInfoPath(dataId, group, address);
             final String result = invokeURL(urlString);
-            log.info("通知节点{}分组信息改变：{}", address, result);
+            log.info("Notify {} config changed {}", address, result);
         }
     }
 
@@ -76,8 +76,8 @@ public class NotifyService {
         String urlString = PROTOCOL + hostAndPort.getHostText() + ":"
                 + hostAndPort.getPortOrDefault(Constants.DEF_DIAMOND_NAMESERVER_PORT)
                 + URL_PREFIX;
-        // 如果有指定url，使用指定的url
         if (StringUtils.isNotBlank(specialUrl)) urlString = specialUrl;
+
 
         return urlString + "?method=notifyConfigInfo&dataId=" + dataId + "&group=" + group;
     }
@@ -93,7 +93,7 @@ public class NotifyService {
             conn.connect();
             return IOUtils.toString(conn.getInputStream());
         } catch (Exception e) {
-            log.error("http调用失败,url=" + urlString, e.toString());
+            log.error("http invoke error,url=" + urlString, e.toString());
         } finally {
             if (conn != null) conn.disconnect();
         }

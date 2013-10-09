@@ -41,7 +41,7 @@ public class AdminService {
             }
 
         } catch (IOException e) {
-            log.error("加载user.properties文件失败", e);
+            log.error("load users failed", e);
         }
         this.properties = tempProperties;
     }

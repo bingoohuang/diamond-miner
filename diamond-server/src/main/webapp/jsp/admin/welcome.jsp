@@ -2,11 +2,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Diamond控制台</title>
+    <title>Diamond-Server Console</title>
 </head>
 <body>
 
-欢迎访问diamond服务器控制台。
+Welcome to diamond-Server Console。
 
 </body>
 </html>

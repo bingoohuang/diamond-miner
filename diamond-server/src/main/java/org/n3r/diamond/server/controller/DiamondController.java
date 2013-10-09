@@ -22,19 +22,16 @@ import java.util.List;
 
 @Controller
 public class DiamondController {
-
     @Autowired
     private DiamondService diamondService;
-
     @Autowired
     private DiskService diskService;
 
 
     public String getConfig(HttpServletRequest request, HttpServletResponse response, String dataId, String group) throws IOException {
         response.setHeader("Content-Type", "text/html;charset=UTF-8");
-        final String address = getRemoteIP(request);
+        final String address = getRealRemoteIP(request);
         if (address == null) {
-            // 未找到远端地址，返回400错误
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "400";
         }
@@ -44,24 +41,18 @@ public class DiamondController {
             return "503";
         }
 
-        String md5 = this.diamondService.getContentMD5(dataId, group);
+        String md5 = this.diamondService.getCacheContentMD5(dataId, group);
         if (md5 == null) {
             return "404";
         }
 
         response.setHeader(Constants.CONTENT_MD5, md5);
 
-        // 禁用缓存
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
-        response.setHeader("Cache-Control", "no-cache,no-store");
+        invalidHttpCache(response);
 
         File path = diskService.getDiamondFile(dataId, group);
         if (!path.exists() || !path.isFile()) return "404";
 
-//        SimpleDateFormat format = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH);
-//        String lastModified = format.format(path.lastModified());
-//        response.setHeader("Last-Modified", lastModified);
         response.setDateHeader("Last-Modified", path.lastModified());
 
         ServletOutputStream outputStream = response.getOutputStream();
@@ -76,9 +67,8 @@ public class DiamondController {
 
     public String getProbeModifyResult(HttpServletRequest request, HttpServletResponse response, String probeModify) {
         response.setHeader("Content-Type", "text/html;charset=UTF-8");
-        final String address = getRemoteIP(request);
+        final String address = getRealRemoteIP(request);
         if (address == null) {
-            // 未找到远端地址，返回400错误
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return "400";
         }
@@ -92,7 +82,7 @@ public class DiamondController {
 
         StringBuilder resultBuilder = new StringBuilder();
         for (ConfigKey key : configKeyList) {
-            String md5 = this.diamondService.getContentMD5(key.getDataId(), key.getGroup());
+            String md5 = this.diamondService.getCacheContentMD5(key.getDataId(), key.getGroup());
             if (!StringUtils.equals(md5, key.getMd5())) {
                 resultBuilder.append(key.getDataId()).append(Constants.WORD_SEPARATOR).append(key.getGroup())
                         .append(Constants.LINE_SEPARATOR);
@@ -107,34 +97,24 @@ public class DiamondController {
         }
 
         request.setAttribute("content", returnHeader);
-        // 禁用缓存
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
-        response.setHeader("Cache-Control", "no-cache,no-store");
+
+        invalidHttpCache(response);
+
         return "200";
     }
 
-
-    public void setDiamondService(DiamondService diamondService) {
-        this.diamondService = diamondService;
+    private void invalidHttpCache(HttpServletResponse response) {
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+        response.setHeader("Cache-Control", "no-cache,no-store");
     }
 
 
-    public void setDiskService(DiskService diskService) {
-        this.diskService = diskService;
-    }
-
-
-    /**
-     * 查找真实的IP地址
-     *
-     * @param request
-     * @return
-     */
-    public String getRemoteIP(HttpServletRequest request) {
+    public String getRealRemoteIP(HttpServletRequest request) {
         if (request.getHeader("x-forwarded-for") == null) {
             return request.getRemoteAddr();
         }
+
         return request.getHeader("x-forwarded-for");
     }
 
@@ -147,13 +127,10 @@ public class DiamondController {
         String[] configKeyStrings = configKeysString.split(Constants.LINE_SEPARATOR);
         for (String configKeyString : configKeyStrings) {
             String[] configKey = configKeyString.split(Constants.WORD_SEPARATOR);
-            if (configKey.length > 3) {
-                continue;
-            }
+            if (configKey.length > 3) continue;
             ConfigKey key = new ConfigKey();
-            if ("".equals(configKey[0])) {
-                continue;
-            }
+            if ("".equals(configKey[0])) continue;
+
             key.setDataId(configKey[0]);
             if (configKey.length >= 2 && !"".equals(configKey[1])) {
                 key.setGroup(configKey[1]);

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>添加配置信息</title>
+    <title>New Config</title>
 
     <script src="../../../js/prototype_for_validation.js" type="text/javascript"></script>
     <script src="../../../js/effects.js" type="text/javascript"></script>
@@ -27,7 +27,7 @@
 </head>
 <body>
 <c:import url="/jsp/common/message.jsp"/>
-<center><h1><strong>新增配置信息</strong></h1></center>
+<center><h1><strong>New Config</strong></h1></center>
 <p align='center'>
     <c:url var="postConfigUrl" value="/admin.do">
         <c:param name="method" value="postConfig"/>
@@ -66,7 +66,7 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2"><input type="submit" value="提交"/>
+            <td colspan="2"><input type="submit" value="Submit"/>
         </tr>
     </table>
 </form>

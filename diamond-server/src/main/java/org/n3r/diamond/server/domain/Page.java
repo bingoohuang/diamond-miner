@@ -5,10 +5,10 @@ import java.util.List;
 
 
 public class Page<E> {
-    private int totalCount; // 总记录数
-    private int pageNo; // 页数
-    private int totalPages; // 总页数
-    private List<E> pageItems = new ArrayList<E>(); // 该页内容
+    private int totalCount;
+    private int pageNo;
+    private int totalPages;
+    private List<E> pageItems = new ArrayList<E>();
 
     public void setPageNo(int pageNo) {
         this.pageNo = pageNo;

@@ -19,8 +19,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TimerTaskService {
     private Logger log = LoggerFactory.getLogger(TimerTaskService.class);
-    // Dump配置信息的时间间隔，默认10分钟
-    private static final int DUMP_INTERVAL = 600;
+    private static final int DUMP_INTERVAL = 600; // 10 min
     private static final int PAGE_SIZE = 1000;
     private static final String THREAD_NAME = "diamond dump config thread";
 

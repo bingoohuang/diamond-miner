@@ -19,18 +19,10 @@ public interface Constants {
     int DEF_DIAMOND_NAMESERVER_PORT = 17001;
     String DIAMOND_STONE_EXT = ".diamond";
 
-    /*
-     * 批量操作时, 单条数据的状态码
-     */
-    // 发生异常
     int BATCH_OP_ERROR = -1;
-    // 查询成功, 数据存在
     int BATCH_QUERY_EXISTS = 1;
-    // 查询成功, 数据不存在
     int BATCH_QUERY_NONEXISTS = 2;
-    // 新增成功
     int BATCH_ADD_SUCCESS = 3;
-    // 更新成功
     int BATCH_UPDATE_SUCCESS = 4;
 
 }

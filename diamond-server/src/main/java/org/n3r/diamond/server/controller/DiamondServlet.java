@@ -38,7 +38,7 @@ public class DiamondServlet extends HttpServlet {
             IOException {
         String probeModify = request.getParameter(Constants.PROBE_MODIFY_REQUEST);
 
-        if (StringUtils.isEmpty(probeModify)) throw new IOException("无效的probeModify");
+        if (StringUtils.isEmpty(probeModify)) throw new IOException("Invalid probeModify");
 
         String page = diamondController.getProbeModifyResult(request, response, probeModify);
         forward(request, response, page, "/jsp/", ".jsp");
@@ -50,7 +50,7 @@ public class DiamondServlet extends HttpServlet {
         String group = request.getParameter("group");
         String dataId = request.getParameter("dataId");
 
-        if (StringUtils.isEmpty(dataId)) throw new IOException("无效的dataId");
+        if (StringUtils.isEmpty(dataId)) throw new IOException("Invalid dataId");
 
         String page = diamondController.getConfig(request, response, dataId, group);
         if (!"OK".equals(page)) forward(request, response, page, "/jsp/", ".jsp");

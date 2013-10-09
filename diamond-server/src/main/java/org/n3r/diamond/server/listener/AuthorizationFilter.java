@@ -19,7 +19,6 @@ public class AuthorizationFilter implements Filter {
             ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpSession session = httpRequest.getSession();
-        // 判断是否登录，没有就跳转到登录页面
         if (session.getAttribute("user") == null)
             ((HttpServletResponse) response).sendRedirect(
                     httpRequest.getContextPath() + "/jsp/login.jsp");

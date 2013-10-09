@@ -29,7 +29,7 @@ public class DiamondService {
     private NotifyService notifyService;
 
     /**
-     * content的MD5的缓存,key为group/dataId，value为md5值
+     * content's MD5 cache,key is group/dataId，value is md5
      */
     private final ConcurrentHashMap<String, String> contentMD5Cache = new ConcurrentHashMap<String, String>();
 
@@ -38,17 +38,9 @@ public class DiamondService {
                 diamondStone.getGroup()), DigestUtils.md5Hex(diamondStone.getContent()));
     }
 
-    public String getContentMD5(String dataId, String group) {
+    public String getCacheContentMD5(String dataId, String group) {
         String key = createMD5CacheKey(dataId, group);
-        String md5 = contentMD5Cache.get(key);
-        if (md5 == null) {
-            synchronized (this) {
-                // 二重检查
-                return contentMD5Cache.get(key);
-            }
-        } else {
-            return md5;
-        }
+        return contentMD5Cache.get(key);
     }
 
 
@@ -65,7 +57,7 @@ public class DiamondService {
             notifyOtherNodes(diamondStone.getDataId(), diamondStone.getGroup());
 
         } catch (Exception e) {
-            log.error("删除配置信息错误", e);
+            log.error("remove config info error", e);
             throw Throwables.propagate(e);
         }
     }
@@ -73,14 +65,13 @@ public class DiamondService {
     public void addConfigInfo(String dataId, String group, String content, String description, boolean valid) {
         checkParameter(dataId, group, content);
         DiamondStone diamondStone = new DiamondStone(dataId, group, content, description, valid);
-        // 保存顺序：先数据库，再磁盘
         try {
             persistService.addConfigInfo(diamondStone);
             contentMD5Cache.put(createMD5CacheKey(dataId, group), diamondStone.getMd5());
             diskService.saveToDisk(diamondStone);
             notifyOtherNodes(dataId, group);
         } catch (Exception e) {
-            log.error("保存ConfigInfo失败", e);
+            log.error("addConfigInfo error", e);
             throw Throwables.propagate(e);
         }
     }
@@ -88,11 +79,9 @@ public class DiamondService {
     public void updateConfigInfo(String dataId, String group, String content, String description, boolean valid) {
         checkParameter(dataId, group, content);
         DiamondStone diamondStone = new DiamondStone(dataId, group, content, description, valid);
-        // 先更新数据库，再更新磁盘
         try {
             persistService.updateConfigInfo(diamondStone);
 
-            // 切记更新缓存
             String key = createMD5CacheKey(dataId, group);
             if (valid) contentMD5Cache.put(key, diamondStone.getMd5());
             else contentMD5Cache.remove(key);
@@ -101,7 +90,7 @@ public class DiamondService {
 
             notifyOtherNodes(dataId, group);
         } catch (Exception e) {
-            log.error("保存ConfigInfo失败", e);
+            log.error("updateConfigInfo error", e);
             throw Throwables.propagate(e);
         }
     }
@@ -117,7 +106,7 @@ public class DiamondService {
                 diskService.removeConfigInfo(dataId, group);
             }
         } catch (Exception e) {
-            log.error("保存ConfigInfo到磁盘失败", e);
+            log.error("loadConfigInfoToDisk error", e);
             throw Throwables.propagate(e);
         }
     }
@@ -156,13 +145,13 @@ public class DiamondService {
 
     private void checkParameter(String dataId, String group, String content) {
         if (!hasLength(dataId) || containsWhitespace(dataId))
-            throw new RuntimeException("无效的dataId");
+            throw new RuntimeException("Invalid dataId");
 
         if (!hasLength(group) || containsWhitespace(group))
-            throw new RuntimeException("无效的group");
+            throw new RuntimeException("Invalid group");
 
         if (!hasLength(content))
-            throw new RuntimeException("无效的content");
+            throw new RuntimeException("Invalid content");
     }
 
     private void notifyOtherNodes(String dataId, String group) {

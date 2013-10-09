@@ -65,20 +65,20 @@ public class AdminController {
 
         diamondService.addConfigInfo(dataId, group, content, description, valid);
 
-        modelMap.addAttribute("message", "提交成功!");
+        modelMap.addAttribute("message", "Submit Successfully!");
         return listConfig(request, response, dataId, group, 1, 20, modelMap);
     }
 
     private String checkDataIdGroupAndContent(String dataId, String group, String content) {
         String errorMessage = null;
         if (StringUtils.isBlank(dataId) || hasInvalidChar(dataId.trim())) {
-            errorMessage = "无效的DataId";
+            errorMessage = "Invalid DataId";
         }
         if (StringUtils.isBlank(group) || hasInvalidChar(group.trim())) {
-            errorMessage = "无效的分组";
+            errorMessage = "Invalid Group";
         }
         if (StringUtils.isBlank(content)) {
-            errorMessage = "无效的内容";
+            errorMessage = "Invalid Content";
         }
         return errorMessage;
     }
@@ -89,7 +89,7 @@ public class AdminController {
                                @RequestParam("id") long id,
                                ModelMap modelMap) {
         diamondService.removeConfigInfo(id);
-        modelMap.addAttribute("message", "删除成功!");
+        modelMap.addAttribute("message", "Delete successfully!");
         return "/admin/config/list";
     }
 
@@ -112,7 +112,7 @@ public class AdminController {
         }
 
         diamondService.addConfigInfo(dataId, group, content, description, valid);
-        modelMap.addAttribute("message", "提交成功!");
+        modelMap.addAttribute("message", "Submit Successfully!");
         return listConfig(request, response, dataId, group, 1, 20, modelMap);
     }
 
@@ -142,7 +142,7 @@ public class AdminController {
 
         diamondService.updateConfigInfo(dataId, group, content, description, valid);
 
-        modelMap.addAttribute("message", "更新成功!");
+        modelMap.addAttribute("message", "Update Successfully!");
         return listConfig(request, response, dataId, group, 1, 20, modelMap);
     }
 
@@ -176,7 +176,7 @@ public class AdminController {
 
         diamondService.updateConfigInfo(dataId, group, content, description, valid);
 
-        modelMap.addAttribute("message", "提交成功!");
+        modelMap.addAttribute("message", "Submit Successfully!");
         return listConfig(request, response, dataId, group, 1, 20, modelMap);
     }
 
@@ -195,7 +195,7 @@ public class AdminController {
             try {
                 modelMap.addAttribute("pageJson", JSON.toJSONString(page));
             } catch (Exception e) {
-                log.error("序列化page对象出错", e);
+                log.error("Json serialize page error", e);
             }
             return "/admin/config/list_json";
         } else {
@@ -215,7 +215,7 @@ public class AdminController {
                                  @RequestParam("pageSize") int pageSize,
                                  ModelMap modelMap) {
         if (StringUtils.isBlank(dataId) && StringUtils.isBlank(group)) {
-            modelMap.addAttribute("message", "模糊查询请至少设置一个查询参数");
+            modelMap.addAttribute("message", "Fuzzy query should has at least one param");
             return "/admin/config/list";
         }
 
@@ -226,7 +226,7 @@ public class AdminController {
             try {
                 modelMap.addAttribute("pageJson", JSON.toJSONString(page));
             } catch (Exception e) {
-                log.error("序列化page对象出错", e);
+                log.error("Json serialize page error", e);
             }
 
             return "/admin/config/list_json";
@@ -253,8 +253,6 @@ public class AdminController {
     }
 
 
-    // =========================== 批量处理 ============================== //
-
     @RequestMapping(params = "method=batchQuery", method = RequestMethod.POST)
     public String batchQuery(HttpServletRequest request, HttpServletResponse response,
                              @RequestParam("dataIds") String dataIds,
@@ -263,16 +261,13 @@ public class AdminController {
 
         response.setCharacterEncoding("UTF-8");
 
-        // 这里抛出的异常, 会产生一个500错误, 返回给sdk, sdk会将500错误记录到日志中
         if (StringUtils.isBlank(dataIds)) {
-            throw new IllegalArgumentException("批量查询, dataIds不能为空");
+            throw new IllegalArgumentException("Batch Query, dataIds should not be empty");
         }
-        // group对批量操作的每一条数据都相同, 不需要在for循环里面进行判断
         if (StringUtils.isBlank(group)) {
-            throw new IllegalArgumentException("批量查询, group不能为空或者包含非法字符");
+            throw new IllegalArgumentException("Batch Query, group should not be empty");
         }
 
-        // 分解dataId
         String[] dataIdArray = dataIds.split(Constants.WORD_SEPARATOR);
         group = group.trim();
 
@@ -289,22 +284,18 @@ public class AdminController {
                     continue;
                 }
 
-                // 查询数据库
                 DiamondStone diamondStone = diamondService.findConfigInfo(dataId, group);
                 if (diamondStone == null) {
-                    // 没有异常, 说明查询成功, 但数据不存在, 设置不存在的状态码
                     configInfoEx.setStatus(Constants.BATCH_QUERY_NONEXISTS);
                     configInfoEx.setMessage("query data does not exist");
                 } else {
-                    // 没有异常, 说明查询成功, 而且数据存在, 设置存在的状态码
                     String content = diamondStone.getContent();
                     configInfoEx.setContent(content);
                     configInfoEx.setStatus(Constants.BATCH_QUERY_EXISTS);
                     configInfoEx.setMessage("query success");
                 }
             } catch (Exception e) {
-                log.error("批量查询, 在查询这个dataId时出错, dataId=" + dataId + ",group=" + group, e);
-                // 出现异常, 设置异常状态码
+                log.error("Batch query error on dataId={}, group=", dataId, group, e);
                 configInfoEx.setStatus(Constants.BATCH_OP_ERROR);
                 configInfoEx.setMessage("query error: " + e.getMessage());
             }
@@ -314,7 +305,7 @@ public class AdminController {
         try {
             json = JSON.toJSONString(configInfoExList);
         } catch (Exception e) {
-            log.error("批量查询结果序列化出错, json=" + json, e);
+            log.error("Batch query Json serialize error", e);
         }
         modelMap.addAttribute("json", json);
 
@@ -330,13 +321,11 @@ public class AdminController {
 
         response.setCharacterEncoding("UTF-8");
 
-        // 这里抛出的异常, 会产生一个500错误, 返回给sdk, sdk会将500错误记录到日志中
         if (StringUtils.isBlank(allDataIdAndContent)) {
-            throw new IllegalArgumentException("批量写, allDataIdAndContent不能为空");
+            throw new IllegalArgumentException("Batch Update, allDataIdAndContent should not be empty");
         }
-        // group对批量操作的每一条数据都相同, 不需要在for循环里面进行判断
         if (StringUtils.isBlank(group) || hasInvalidChar(group)) {
-            throw new IllegalArgumentException("批量写, group不能为空或者包含非法字符");
+            throw new IllegalArgumentException("Batch Update, group should not be empty or with invalid letters");
         }
 
         String[] dataIdAndContentArray = allDataIdAndContent.split(Constants.LINE_SEPARATOR);
@@ -358,31 +347,24 @@ public class AdminController {
 
             try {
                 if (StringUtils.isBlank(dataId) || hasInvalidChar(dataId)) {
-                    // 这里抛出的异常, 会在下面catch, 然后设置状态, 保证一个dataId的异常不会影响其他dataId
-                    throw new IllegalArgumentException("批量写, dataId不能包含非法字符");
+                    throw new IllegalArgumentException("Batch Update, dataId should not has invlid letters");
                 }
                 if (StringUtils.isBlank(content)) {
-                    throw new IllegalArgumentException("批量写, 内容不能为空");
+                    throw new IllegalArgumentException("Batch Update, content should not be blank");
                 }
 
-                // 查询数据库
                 DiamondStone diamondStone = diamondService.findConfigInfo(dataId, group);
                 if (diamondStone == null) {
-                    // 数据不存在, 新增
                     diamondService.addConfigInfo(dataId, group, content, description, valid);
-                    // 新增成功, 设置状态码
                     configInfoEx.setStatus(Constants.BATCH_ADD_SUCCESS);
                     configInfoEx.setMessage("add success");
                 } else {
-                    // 数据存在, 更新
                     diamondService.updateConfigInfo(dataId, group, content, description, valid);
-                    // 更新成功, 设置状态码
                     configInfoEx.setStatus(Constants.BATCH_UPDATE_SUCCESS);
                     configInfoEx.setMessage("update success");
                 }
             } catch (Exception e) {
-                log.error("批量写这条数据时出错, dataId=" + dataId + ",group=" + group + ",content=" + content, e);
-                // 出现异常, 设置异常状态码
+                log.error("Batch Update error on dataId={},group={}", dataId, group + ",content=" + content, e);
                 configInfoEx.setStatus(Constants.BATCH_OP_ERROR);
                 configInfoEx.setMessage("batch write error: " + e.getMessage());
             }
@@ -393,7 +375,7 @@ public class AdminController {
         try {
             json = JSON.toJSONString(configInfoExList);
         } catch (Exception e) {
-            log.error("批量写, 结果序列化出错, json=" + json, e);
+            log.error("Batch update Json serialize error", e);
         }
         modelMap.addAttribute("json", json);
 
@@ -415,17 +397,18 @@ public class AdminController {
                           @RequestParam("userName") String userName,
                           @RequestParam("password") String password, ModelMap modelMap) {
         if (StringUtils.isBlank(userName) || hasInvalidChar(userName.trim())) {
-            modelMap.addAttribute("message", "无效的用户名");
+            modelMap.addAttribute("message", "Invalid username");
             return listUser(request, response, modelMap);
         }
         if (StringUtils.isBlank(password) || hasInvalidChar(password.trim())) {
-            modelMap.addAttribute("message", "无效的密码");
+            modelMap.addAttribute("message", "Invalid password");
             return "/admin/user/new";
         }
         if (adminService.addUser(userName, password))
-            modelMap.addAttribute("message", "添加成功!");
+            modelMap.addAttribute("message", "Add successfully!");
         else
-            modelMap.addAttribute("message", "添加失败!");
+            modelMap.addAttribute("message", "Add failed!");
+
         return listUser(request, response, modelMap);
     }
 
@@ -434,13 +417,13 @@ public class AdminController {
     public String deleteUser(HttpServletRequest request, HttpServletResponse response,
                              @RequestParam("userName") String userName, ModelMap modelMap) {
         if (StringUtils.isBlank(userName) || hasInvalidChar(userName.trim())) {
-            modelMap.addAttribute("message", "无效的用户名");
+            modelMap.addAttribute("message", "Invalid username");
             return listUser(request, response, modelMap);
         }
         if (adminService.removeUser(userName)) {
-            modelMap.addAttribute("message", "删除成功!");
+            modelMap.addAttribute("message", "Delete successfully!");
         } else {
-            modelMap.addAttribute("message", "删除失败!");
+            modelMap.addAttribute("message", "Delete failed!");
         }
         return listUser(request, response, modelMap);
     }
@@ -455,18 +438,19 @@ public class AdminController {
         password = password.trim();
 
         if (StringUtils.isBlank(userName) || hasInvalidChar(userName.trim())) {
-            modelMap.addAttribute("message", "无效的用户名");
+            modelMap.addAttribute("message", "Invalid username");
             return listUser(request, response, modelMap);
         }
         if (StringUtils.isBlank(password) || hasInvalidChar(password.trim())) {
-            modelMap.addAttribute("message", "无效的新密码");
+            modelMap.addAttribute("message", "Invalid new password");
             return listUser(request, response, modelMap);
         }
         if (adminService.updatePassword(userName, password)) {
-            modelMap.addAttribute("message", "更改成功,下次登录请用新密码！");
+            modelMap.addAttribute("message", "Change password successfully.");
         } else {
-            modelMap.addAttribute("message", "更改失败!");
+            modelMap.addAttribute("message", "Change password failed");
         }
+
         return listUser(request, response, modelMap);
     }
 
@@ -474,11 +458,11 @@ public class AdminController {
     @RequestMapping(params = "method=setRefuseRequestCount", method = RequestMethod.POST)
     public String setRefuseRequestCount(@RequestParam("count") long count, ModelMap modelMap) {
         if (count <= 0) {
-            modelMap.addAttribute("message", "非法的计数");
+            modelMap.addAttribute("message", "Invalid count " + count);
             return "/admin/count";
         }
         GlobalCounter.getCounter().set(count);
-        modelMap.addAttribute("message", "设置成功!");
+        modelMap.addAttribute("message", "Set successfully!");
         return getRefuseRequestCount(modelMap);
     }
 
@@ -490,14 +474,11 @@ public class AdminController {
     }
 
 
-    /**
-     * 重新文件加载用户信息
-     */
     @RequestMapping(params = "method=reloadUser", method = RequestMethod.GET)
     public String reloadUser(HttpServletRequest request, HttpServletResponse response,
                              ModelMap modelMap) {
         adminService.loadUsers();
-        modelMap.addAttribute("message", "加载成功!");
+        modelMap.addAttribute("message", "Reload successfully!");
         return listUser(request, response, modelMap);
     }
 }

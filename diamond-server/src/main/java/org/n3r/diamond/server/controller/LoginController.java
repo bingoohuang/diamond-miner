@@ -25,7 +25,7 @@ public class LoginController {
             return "admin/admin";
         }
         else {
-            modelMap.addAttribute("message", "登录失败，用户名密码不匹配");
+            modelMap.addAttribute("message", "Login failed, username or password error");
             return "login";
         }
     }

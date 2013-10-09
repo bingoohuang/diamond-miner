@@ -34,7 +34,7 @@ public class DiskService {
 
         File dir = new File(filePath);
         dir.mkdirs();
-        if (!dir.exists()) throw new RuntimeException("创建diamond-miner目录失败：" + filePath);
+        if (!dir.exists()) throw new RuntimeException("fail to create diamond-miner root" + filePath);
 
         return filePath;
     }
@@ -108,7 +108,7 @@ public class DiskService {
 
 
     private void changeFilePermission(File file) {
-        // 文件权限设置为600
+        // 600
         file.setExecutable(false, false);
         file.setWritable(false, false);
         file.setReadable(false, false);

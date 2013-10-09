@@ -10,24 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-
-/**
- * 分页辅助类
- */
 public class PageHelper<E> {
 
-    /**
-     * 取分页
-     *
-     * @param jt           jdbcTemplate
-     * @param sqlCountRows 查询总数的SQL
-     * @param sqlFetchRows 查询数据的sql
-     * @param args         查询参数
-     * @param pageNo       页数
-     * @param pageSize     每页大小
-     * @param rowMapper
-     * @return
-     */
     public Page<E> fetchPage(String driverName, JdbcTemplate jt,
                              String sqlCountRows,
                              String sqlFetchRows,
@@ -50,7 +34,6 @@ public class PageHelper<E> {
         page.setTotalCount(rowCount);
 
 
-        // 取单页数据，计算起始位置
         int startRow = (pageNo - 1) * pageSize;
         String selectSQL = createPageSql(driverName, sqlFetchRows,startRow, pageSize);
         jt.query(selectSQL, args, new ResultSetExtractor() {
@@ -79,7 +62,6 @@ public class PageHelper<E> {
     }
 
     private String createMySqlPageSql(String sql, int startRow, int pageSize) {
-        // NOTE: 在数据量很大时， limit效率很低
         return sql + " LIMIT " + startRow + "," + pageSize;
     }
 

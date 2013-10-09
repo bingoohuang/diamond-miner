@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>配置信息详情</title>
+    <title>Configuration detail</title>
     <script src="<c:url value='/js/prototype_for_validation.js'/>" type="text/javascript"></script>
     <script src="<c:url value='/js/effects.js'/>" type="text/javascript"></script>
     <script src="<c:url value='/js/validation_cn.js'/>" type="text/javascript"></script>
@@ -66,11 +66,10 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2"><input type="submit" value="更改"/>
+            <td colspan="2"><input type="submit" value="Change"/>
         </tr>
     </table>
 </form>
-<!-- 上传表单 -->
 <c:url var="reuploadUrl" value="/admin.do">
     <c:param name="method" value="reupload"/>
 </c:url>
@@ -87,9 +86,9 @@
                                    value="${diamondStone.group}"/></td>
         </tr>
         <tr>
-            <td>重新上传配置文件:</td>
+            <td>Reupload Config File:</td>
             <td>
-                <input type="file" name="contentFile" class="required"/>&nbsp;&nbsp;<input type="submit" value="上传"/>
+                <input type="file" name="contentFile" class="required"/>&nbsp;&nbsp;<input type="submit" value="Upload"/>
             </td>
         </tr>
     </table>

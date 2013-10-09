@@ -25,9 +25,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Service
 public class PersistService {
-    // 最大记录条数
     private static final int MAX_ROWS = 10000;
-    // JDBC执行超时时间, 单位秒
     private static final int QUERY_TIMEOUT = 2;
 
     private static final DiamondStoneRowMapper STONE_ROW_MAPPER = new DiamondStoneRowMapper();
@@ -71,8 +69,8 @@ public class PersistService {
     private void createJdbcTemplate(BasicDataSource ds) {
         jt = new JdbcTemplate();
         jt.setDataSource(ds);
-        jt.setMaxRows(MAX_ROWS); // 设置最大记录数，防止内存膨胀
-        jt.setQueryTimeout(QUERY_TIMEOUT); // 设置JDBC执行超时时间
+        jt.setMaxRows(MAX_ROWS);
+        jt.setQueryTimeout(QUERY_TIMEOUT);
     }
 
     private BasicDataSource createBasicDataSource(Properties props) {
