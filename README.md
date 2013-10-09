@@ -100,7 +100,7 @@ After you setup diamond-server successfully, you can open [http://localhost:1700
     * Create DiamondServer.address on the classpath root.
     * Add one line to DiamondServer.address
 ```
-DiamondServer.address
+127.0.0.1:17002
 ```
 
 + Simple use examples
