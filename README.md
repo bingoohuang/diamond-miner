@@ -127,6 +127,7 @@ String foobar = DiamondMiner.getString("foobar");
 
 + Use diamond cache
     1. Create a cache updater class, and it should implement Callable interface.
+
             package org.n3r.diamond.client;
             
             import org.n3r.diamond.client.cache.ParamsAppliable;
