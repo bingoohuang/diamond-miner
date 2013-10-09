@@ -80,6 +80,8 @@ If you have the different mysql ip, user or passoword, you can have two way to c
 + place a diamond-server.properties in your current directory(same directory with diamond-server-0.0.1.war)
 + update WEB-INF/classes/diamond-server.properties in diamond-server-0.0.1.war.
 
+After you setup diamond-server successfully, you can open http://localhost:17002/diamond-server to login in diamond-server console. The default username and password is admin/admin.
+
 ## Try to use diamond-client
 + Setup connection info for client
     * Create DiamondServer.address on the classpath root.
