@@ -197,7 +197,7 @@ String foobar = DiamondMiner.getString("foobar");
     * Httpclient to diamond-server if local cache missed
     * Local snapshot
 
->So if the diamond-server died, the client can still work by snapshot. And the snapshot is not available, the local disaster recovery dir can be used to temporarily.
+>So if the diamond-server died, the client can still work by snapshot. And even when the snapshot is not available, the local disaster recovery dir can be used temporarily.
 
 + The client has a standalone thread to update configs to diamond-server by comparing those md5 periodically per 15 seconds.
 + The server will dump all the config from database periodically per 10 minutes.
