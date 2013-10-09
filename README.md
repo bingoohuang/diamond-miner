@@ -55,11 +55,22 @@ There are two ways to setup diamond-servers. One is download the diamond-server 
 
 + source code way
     1. download the diamond-server code from github
-    2. run the command: mvn jetty:run
+    2. run the command: 
+```
+mvn jetty:run
+```
+or
+```
+mvn package && cd target && java -jar dimaond-server-0.0.1.war
+```
+
 
 + war package way
     1. download [diamond-server-0.0.1.war](https://github.com/bingoohuang/diamond-miner/releases/download/v0.0.1/diamond-server-0.0.1.war)
-    2. run the command: java -jar diamond-server-0.0.1.war
+    2. run the command:
+```
+java -jar diamond-server-0.0.1.war
+```
 
 The default mysql connection is:
 
@@ -80,7 +91,7 @@ If you have the different mysql ip, user or passoword, you can have two way to c
 + place a diamond-server.properties in your current directory(same directory with diamond-server-0.0.1.war)
 + update WEB-INF/classes/diamond-server.properties in diamond-server-0.0.1.war.
 
-After you setup diamond-server successfully, you can open http://localhost:17002/diamond-server to login in diamond-server console. The default username and password is admin/admin.
+After you setup diamond-server successfully, you can open [http://localhost:17002/diamond-server](http://localhost:17002/diamond-server) to login in diamond-server console. The default username and password is admin/admin.
 
 ## Try to use diamond-client
 + Setup connection info for client
