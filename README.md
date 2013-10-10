@@ -105,6 +105,7 @@ After you setup diamond-server successfully, you can open [http://localhost:1700
 + Setup connection info for client
     * Create diamond-client.properties on the classpath root.
     * Add one line to diamond-client.properties
+
 ```
 DiamondServer.address=localhost:17002
 
@@ -112,6 +113,7 @@ or cluster way
 
 DiamondServer.address=localhost:18001 localhost:18002
 ```
+
 
 + Simple use examples
 

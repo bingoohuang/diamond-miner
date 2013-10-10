@@ -1,5 +1,6 @@
 package org.n3r.diamond.server.service;
 
+import com.google.common.base.Splitter;
 import com.google.common.net.HostAndPort;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Enumeration;
@@ -33,24 +33,20 @@ public class NotifyService {
 
     @PostConstruct
     public void loadNodes() {
-        // multilines ip:port=[specialUrl]
+        // ip:port=[specialUrl] ip:port=another
         DiamondStone info = diamondService.findConfigInfo("nameservers", "admin");
-        try {
-            if (info != null) {
-                List<String> lines = IOUtils.readLines(IOUtils.toInputStream(info.getContent()));
-                for (String line : lines) {
-                    int equalPos = line.indexOf('=');
-                    if (equalPos < 0) {
-                        nodeProps.put(line.trim(), "");
-                    } else {
-                        String key = line.substring(0, equalPos);
-                        String value = equalPos < line.length() - 1 ? line.substring(equalPos + 1) : "";
-                        nodeProps.put(key.trim(), value.trim());
-                    }
+        if (info != null) {
+            List<String> lines = Splitter.on("\\s+").trimResults().omitEmptyStrings().splitToList(info.getContent());
+            for (String line : lines) {
+                int equalPos = line.indexOf('=');
+                if (equalPos < 0) {
+                    nodeProps.put(line.trim(), "");
+                } else {
+                    String key = line.substring(0, equalPos);
+                    String value = equalPos < line.length() - 1 ? line.substring(equalPos + 1) : "";
+                    nodeProps.put(key.trim(), value.trim());
                 }
             }
-        } catch (IOException e) {
-            log.error("load diamond-server nodes failed");
         }
 
         log.info("diamond-server nodes {}", nodeProps);
