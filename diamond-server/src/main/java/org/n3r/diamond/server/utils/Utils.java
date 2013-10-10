@@ -2,7 +2,6 @@ package org.n3r.diamond.server.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,10 +26,8 @@ public class Utils {
             }
         }
 
-        ClassPathResource classPathResource = new ClassPathResource(pathname);
-        if (classPathResource.exists()) return getClassPathResourceAsStream(pathname);
-
-        if (silent) return null;
+        InputStream is = getClassPathResourceAsStream(pathname);
+        if (is != null || silent) return null;
 
         throw new RuntimeException("fail to find " + pathname + " in current dir or classpath");
     }
@@ -38,7 +35,6 @@ public class Utils {
     public static InputStream getClassPathResourceAsStream(String resourceName) {
         return Utils.class.getClassLoader().getResourceAsStream(resourceName);
     }
-
 
     private static final String LOCAL_IP = getLocalHostAddress();
 

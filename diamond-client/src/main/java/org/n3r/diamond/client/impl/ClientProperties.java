@@ -46,7 +46,6 @@ public class ClientProperties {
         return null;
     }
 
-
     public static List<String> readDiamondServersAddress() {
         String diamondServersAddress = properties.getProperty(Constants.SERVER_ADDRESS, "");
         Splitter splitter = Splitter.onPattern("\\s+").omitEmptyStrings().trimResults();
