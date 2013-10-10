@@ -95,13 +95,13 @@ public class DiamondSubscriber implements Closeable {
     }
 
     private void rotateCheckDiamonds() {
+        int pollingInterval = managerConfig.getPollingInterval();
         scheduler.scheduleWithFixedDelay(new Runnable() {
             public void run() {
                 rotateCheckDiamonsTask();
             }
 
-        }, 0,
-                managerConfig.getPollingInterval(), TimeUnit.SECONDS);
+        }, pollingInterval, pollingInterval, TimeUnit.SECONDS);
     }
 
     private void rotateCheckDiamonsTask() {

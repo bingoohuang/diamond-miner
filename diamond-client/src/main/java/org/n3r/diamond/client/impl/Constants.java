@@ -16,7 +16,7 @@ public interface Constants {
 
     String DEF_DOMAINNAME = "a.b.c";
 
-    int DEF_DIAMOND_NAMESERVER_PORT = 17001;
+    int DEF_NAMESERVER_PORT = 17001;
     int DEFAULT_DIAMOND_SERVER_PORT = 17002;
 
     String NULL = "";

@@ -22,8 +22,6 @@ public class DiamondManagerConf {
 
     private volatile List<String> nameServers = new LinkedList<String>();
 
-    private boolean localFirst = false;
-
     private int maxHostConnections = 1;
     private boolean connectionStaleCheckingEnabled = true;
     private int maxTotalConnections = 20;
@@ -128,17 +126,6 @@ public class DiamondManagerConf {
     public void setRetrieveDataRetryTimes(int retrieveDataRetryTimes) {
         this.retrieveDataRetryTimes = retrieveDataRetryTimes;
     }
-
-
-    public boolean isLocalFirst() {
-        return localFirst;
-    }
-
-
-    public void setLocalFirst(boolean localFirst) {
-        this.localFirst = localFirst;
-    }
-
 
     public String getDomainName() {
         return nameServers.get(domainNamePos.get());

@@ -144,7 +144,7 @@ class DiamondRemoteChecker {
                 break;
             }
 
-            log.info("retrieve config，try {} times with costTime{}", triedTimes, costTime);
+            log.info("retrieve config，try {} times with costTime {}", triedTimes, costTime);
 
             long onceTimeOut = getOnceTimeOut(costTime, timeout);
             costTime += onceTimeOut;

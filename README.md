@@ -73,6 +73,11 @@ mvn package && cd target && java -jar dimaond-server-0.0.1.war
 java -jar diamond-server-0.0.1.war
 ```
 
++ Cluster example
+    1. java -Dport=18001 -jar diamond-server-0.0.1.war
+    2. java -Dport=18002 -jar diamond-server-0.0.1.war
+    3. Add config: dataId=nameservers, group=admin, content=localhost:18001 localhost:18002
+
 The default port of diamond-server is 17002, you can change it by java -Dport=8080 -jar diamond-server-0.0.1.war or mvn -Dport=8080 jetty:run。
 
 The default mysql connection is:
@@ -98,10 +103,14 @@ After you setup diamond-server successfully, you can open [http://localhost:1700
 
 ## Try to use diamond-client
 + Setup connection info for client
-    * Create DiamondServer.address on the classpath root.
-    * Add one line to DiamondServer.address
+    * Create diamond-client.properties on the classpath root.
+    * Add one line to diamond-client.properties
 ```
-127.0.0.1:17002
+DiamondServer.address=localhost:17002
+
+or cluster way
+
+DiamondServer.address=localhost:18001 localhost:18002
 ```
 
 + Simple use examples

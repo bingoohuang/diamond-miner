@@ -63,7 +63,7 @@
                 <c:out value="${diamondStone.group}" escapeXml="false"/>
             </td>
             <td name="valid">
-                <c:choose> <c:when test="${diamondStone.valid}">valid</c:when><c:otherwise>invalid</c:otherwise></c:choose>
+                <c:choose> <c:when test="${diamondStone.valid}">Y</c:when><c:otherwise>N</c:otherwise></c:choose>
             </td>
             <td name="content">
                 <c:out value="${diamondStone.content}" escapeXml="false"/>
