@@ -1,6 +1,5 @@
 package org.n3r.diamond.server.controller;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.n3r.diamond.server.service.DiamondService;
@@ -14,6 +13,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.LinkedList;
@@ -55,11 +55,16 @@ public class DiamondController {
 
         response.setDateHeader("Last-Modified", path.lastModified());
 
-        ServletOutputStream outputStream = response.getOutputStream();
-        String content = FileUtils.readFileToString(path, Constants.ENCODING);
-        IOUtils.write(content, outputStream);
-        outputStream.close();
-
+        ServletOutputStream outputStream = null;
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(path);
+            outputStream = response.getOutputStream();
+            IOUtils.copy(fis, outputStream);
+        } finally {
+            IOUtils.closeQuietly(fis);
+            IOUtils.closeQuietly(outputStream);
+        }
 
         return "OK";
     }
