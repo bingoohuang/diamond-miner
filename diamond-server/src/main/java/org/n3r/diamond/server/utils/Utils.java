@@ -27,7 +27,7 @@ public class Utils {
         }
 
         InputStream is = getClassPathResourceAsStream(pathname);
-        if (is != null || silent) return null;
+        if (is != null || silent) return is;
 
         throw new RuntimeException("fail to find " + pathname + " in current dir or classpath");
     }
