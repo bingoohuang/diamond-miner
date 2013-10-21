@@ -229,7 +229,7 @@ public class DiamondMiner {
     }
 
     public static boolean exists(String group, String dataId) {
-        return new DiamondManager(group, dataId) != null;
+        return new DiamondManager(group, dataId).getDiamond() != null;
     }
 
     public static boolean exists(String key) {
