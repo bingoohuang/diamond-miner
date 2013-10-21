@@ -70,7 +70,7 @@ public class DiamondMiner {
     }
 
     public static JSONObject getJSON(String group, String dataId) {
-        String string = getString(group, dataId);
+        String string = getStone(group, dataId);
         if (string == null) return null;
         try {
             return JSON.parseObject(string);
@@ -81,7 +81,7 @@ public class DiamondMiner {
     }
 
     public static <T> T getJSON(String group, String dataId, Class<T> clazz) {
-        String string = getString(group, dataId);
+        String string = getStone(group, dataId);
         if (string == null) return null;
         try {
             return JSON.parseObject(string, clazz);
@@ -114,7 +114,7 @@ public class DiamondMiner {
     }
 
     public static JSONArray getJSONArray(String group, String dataId) {
-        String string = getString(group, dataId);
+        String string = getStone(group, dataId);
         if (string == null) return null;
         try {
             return JSON.parseArray(string);
@@ -125,7 +125,7 @@ public class DiamondMiner {
     }
 
     public static <T> List<T> getJSONArray(String group, String dataId, Class<T> clazz) {
-        String string = getString(group, dataId);
+        String string = getStone(group, dataId);
         if (string == null) return null;
         try {
             return JSON.parseArray(string, clazz);
@@ -152,7 +152,7 @@ public class DiamondMiner {
 
     public static Properties getProperties(String group, String dataId) {
         Properties properties = new Properties();
-        String string = getString(group, dataId);
+        String string = getStone(group, dataId);
         if (string != null) {
             try {
                 properties.load(new StringReader(string));
