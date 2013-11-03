@@ -5,7 +5,7 @@
 
     <groupId>org.n3r.diamond</groupId>
     <artifactId>diamond-client</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2.SNATSHOT</version>
     <name>diamond-client v${project.version}</name>
 
     <dependencies>
