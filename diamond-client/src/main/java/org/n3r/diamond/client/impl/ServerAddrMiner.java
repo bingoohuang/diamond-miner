@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import static org.n3r.diamond.client.impl.ClientProperties.*;
 
 class ServerAddrMiner {
@@ -54,10 +55,12 @@ class ServerAddrMiner {
         if (!running) return;
         running = false;
 
-        connectionManager.shutdown();
+        if (readNameServerMode() != NameServerMode.Off) connectionManager.shutdown();
     }
 
     private void initHttpClient() {
+        if (readNameServerMode() != NameServerMode.Off) return;
+
         connectionManager = new SimpleHttpConnectionManager();
         connectionManager.closeIdleConnections(5000L);
 

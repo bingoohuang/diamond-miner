@@ -66,10 +66,10 @@
                 <c:choose> <c:when test="${diamondStone.valid}">Y</c:when><c:otherwise>N</c:otherwise></c:choose>
             </td>
             <td name="content">
-                <c:out value="${diamondStone.content}" escapeXml="false"/>
+                <pre><c:out value="${diamondStone.content}" escapeXml="false"/></pre>
             </td>
             <td name="description">
-                <c:out value="${diamondStone.description}" escapeXml="false"/>
+                <pre><c:out value="${diamondStone.description}" escapeXml="false"/></pre>
             </td>
             <c:url var="getConfigInfoUrl" value="/admin.do">
                 <c:param name="method" value="detailConfig"/>
