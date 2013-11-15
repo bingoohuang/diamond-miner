@@ -189,6 +189,21 @@ String foobar = DiamondMiner.getString("foobar");
             content=@org.n3r.diamond.client.DemoUpdater("你好，中国") @TimestampMark("2013-10-09 10:37:10.234")
 
 
+# Notes
+
++ garbled characters on TOMCAT console: add `-Dfile.encoding=UTF-8` to VM options
++ check charset in MYSQL : 
+
+```mysql
+show create database diamond;
+show create table diamond_stones;
+
+set names utf8;
+ALTER DATABASE `diamond` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE `config_info` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+
+```
+
 # Rantionale
 
 + The client and server local store tree:
