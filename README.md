@@ -229,9 +229,9 @@ ALTER TABLE `config_info` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 + The client has a standalone thread to update configs to diamond-server by comparing those md5 periodically per 15 seconds.
 + The server will dump all the config from database periodically per 10 minutes.
 + More links:
-    * [diamond专题（一）- 简介和快速使用](http://rdc.taobao.com/team/jm/archives/1588)
-    * [diamond专题（二）- 核心原理介绍](http://rdc.taobao.com/team/jm/archives/1592)
-    * [diamond专题（三）- diamond架构](http://rdc.taobao.com/team/jm/archives/1606)
-    * [diamond专题（四）- 容灾机制](http://rdc.taobao.com/team/jm/archives/1617)
-    * [ZooKeeper和Diamond有什么不同](http://rdc.taobao.com/team/jm/archives/2561)
+    * [diamond专题（一）- 简介和快速使用](http://jm-blog.aliapp.com/?p=1588)
+    * [diamond专题（二）- 核心原理介绍](http://jm-blog.aliapp.com/?p=1592)
+    * [diamond专题（三）- diamond架构](http://jm-blog.aliapp.com/?p=1606)
+    * [diamond专题（四）- 容灾机制](http://jm-blog.aliapp.com/?p=1617)
+    * [ZooKeeper和Diamond有什么不同](http://jm-blog.aliapp.com/?p=2561)
 
