@@ -33,10 +33,11 @@ public class NotifyService {
 
     @PostConstruct
     public void loadNodes() {
-        // ip:port=[specialUrl] ip:port=another
+        // eg:127.0.0.1:7001=server1 127.0.0.2:7001=server2 or 127.0.0.1:7001 127.0.0.2:7001
         DiamondStone info = diamondService.findConfigInfo("nameservers", "admin");
         if (info != null) {
-            List<String> lines = Splitter.on("\\s+").trimResults().omitEmptyStrings().splitToList(info.getContent());
+            // \s+ 空格正则匹配
+            List<String> lines = Splitter.onPattern("\\s+").trimResults().omitEmptyStrings().splitToList(info.getContent());
             for (String line : lines) {
                 int equalPos = line.indexOf('=');
                 if (equalPos < 0) {
@@ -95,5 +96,4 @@ public class NotifyService {
         }
         return "error";
     }
-
 }
