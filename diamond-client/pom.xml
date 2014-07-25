@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.github.bingoohuang</groupId>
     <artifactId>diamond-client</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>diamond client</name>
 
     <description>a config client of diamond</description>
