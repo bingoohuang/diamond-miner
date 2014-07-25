@@ -18,7 +18,7 @@ public class ServerProperties {
 
     @PostConstruct
     public void loadProperties() {
-        String resourceName = "diamond-sever.properties";
+        String resourceName = "diamond-server.properties";
         InputStream is = Utils.toInputStreamFromCdOrClasspath(resourceName, true);
         try {
             if (is != null) serverProperties.load(is);
