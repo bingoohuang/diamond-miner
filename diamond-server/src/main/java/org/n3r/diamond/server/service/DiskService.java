@@ -30,7 +30,7 @@ public class DiskService {
         if (StringUtils.isNotEmpty(filePath)) return filePath;
 
         filePath = System.getProperty("user.home") + separator + ".diamond-server" + serverProperties.getDumpPostfix();
-        log.info("create dump home dir {} with posfix {}", filePath, serverProperties.getDumpPostfix());
+        log.info("create dump home dir {} with postfix {}", filePath, serverProperties.getDumpPostfix());
 
         File dir = new File(filePath);
         dir.mkdirs();

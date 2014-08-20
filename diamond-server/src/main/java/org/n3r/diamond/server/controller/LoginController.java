@@ -1,6 +1,7 @@
 package org.n3r.diamond.server.controller;
 
 import org.n3r.diamond.server.service.AdminService;
+import org.n3r.diamond.server.utils.DiamondServerUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -19,20 +20,26 @@ public class LoginController {
 
     @RequestMapping(params = "method=login", method = RequestMethod.POST)
     public String login(HttpServletRequest request, @RequestParam("username") String username,
-            @RequestParam("password") String password, ModelMap modelMap) {
+                        @RequestParam("password") String password, ModelMap modelMap) {
         if (adminService.login(username, password)) {
             request.getSession().setAttribute("user", username);
-            return "admin/admin";
-        }
-        else {
+
+            String result = DiamondServerUtils.processJson(request, modelMap, "login successfully");
+            return result != null ? result : "admin/admin";
+        } else {
+            String result = DiamondServerUtils.processJson(request, modelMap, "login failed");
+            if (result != null) return result;
+
             modelMap.addAttribute("message", "Login failed, username or password error");
             return "login";
         }
     }
 
     @RequestMapping(params = "method=logout", method = RequestMethod.GET)
-    public String logout(HttpServletRequest request) {
+    public String logout(HttpServletRequest request, ModelMap modelMap) {
         request.getSession().invalidate();
-        return "login";
+
+        String result = DiamondServerUtils.processJson(request, modelMap, "logout successfully");
+        return result != null ? result : "login";
     }
 }

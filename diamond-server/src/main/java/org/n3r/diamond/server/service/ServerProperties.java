@@ -1,7 +1,7 @@
 package org.n3r.diamond.server.service;
 
 import org.apache.commons.io.IOUtils;
-import org.n3r.diamond.server.utils.Utils;
+import org.n3r.diamond.server.utils.DiamondServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ public class ServerProperties {
     @PostConstruct
     public void loadProperties() {
         String resourceName = "diamond-server.properties";
-        InputStream is = Utils.toInputStreamFromCdOrClasspath(resourceName, true);
+        InputStream is = DiamondServerUtils.toInputStreamFromCdOrClasspath(null, resourceName, true);
         try {
             if (is != null) serverProperties.load(is);
         } catch (IOException e) {

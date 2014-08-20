@@ -5,7 +5,8 @@ import org.apache.commons.io.IOUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.domain.Page;
 import org.n3r.diamond.server.domain.PageHelper;
-import org.n3r.diamond.server.utils.Utils;
+import org.n3r.diamond.server.utils.DiamondServerUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -90,12 +91,14 @@ public class PersistService {
 
         return ds;
     }
+    @Autowired
+    private ServerProperties serverProperties;
 
     private Properties readJdbcProperties() throws IOException {
         Properties props = new Properties();
         InputStream is = null;
         try {
-            is = Utils.toInputStreamFromCdOrClasspath("diamond-jdbc.properties", false);
+            is = DiamondServerUtils.toInputStreamFromCdOrClasspath(serverProperties, "diamond-jdbc.properties", false);
             props.load(is);
         } finally {
             IOUtils.closeQuietly(is);

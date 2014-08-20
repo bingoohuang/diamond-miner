@@ -2,6 +2,7 @@ package org.n3r.diamond.server.service;
 
 import org.apache.commons.io.IOUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
+import org.n3r.diamond.server.utils.DiamondServerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class AdminService {
         } catch (IOException e) {
             log.error("load users failed", e);
         }
-        this.properties = tempProperties;
+        this.properties = DiamondServerUtils.tryDecrypt(tempProperties);
     }
 
 

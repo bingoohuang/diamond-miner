@@ -120,21 +120,25 @@ public class DiamondService {
     public Page<DiamondStone> findConfigInfo(final int pageNo, final int pageSize, final String group, final String dataId) {
         if (hasLength(dataId) && hasLength(group)) {
             DiamondStone DiamondStone = persistService.findConfigInfo(dataId, group);
-            if (DiamondStone != null) return null;
+            if (DiamondStone == null) return null;
 
-            Page<DiamondStone> page = new Page<DiamondStone>();
+            Page<DiamondStone> page = new Page<>();
             page.setPageNo(1);
             page.setTotalPages(1);
             page.getPageItems().add(DiamondStone);
 
             return page;
-        } else if (hasLength(dataId) && !hasLength(group)) {
-            return persistService.findConfigInfoByDataId(pageNo, pageSize, dataId);
-        } else if (!hasLength(dataId) && hasLength(group)) {
-            return persistService.findConfigInfoByGroup(pageNo, pageSize, group);
-        } else {
-            return persistService.findAllConfigInfo(pageNo, pageSize);
         }
+
+        if (hasLength(dataId) && !hasLength(group)) {
+            return persistService.findConfigInfoByDataId(pageNo, pageSize, dataId);
+        }
+
+        if (!hasLength(dataId) && hasLength(group)) {
+            return persistService.findConfigInfoByGroup(pageNo, pageSize, group);
+        }
+
+        return persistService.findAllConfigInfo(pageNo, pageSize);
     }
 
     public Page<DiamondStone> findConfigInfoLike(final int pageNo, final int pageSize, final String group,

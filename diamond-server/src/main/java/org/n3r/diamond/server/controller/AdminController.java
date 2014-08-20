@@ -11,6 +11,7 @@ import org.n3r.diamond.server.service.AdminService;
 import org.n3r.diamond.server.service.DiamondService;
 import org.n3r.diamond.server.service.PersistService;
 import org.n3r.diamond.server.utils.Constants;
+import org.n3r.diamond.server.utils.DiamondServerUtils;
 import org.n3r.diamond.server.utils.GlobalCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +49,7 @@ public class AdminController {
                              @RequestParam("content") String content,
                              @RequestParam(value = "description", required = false) String description,
                              @RequestParam(value = "valid", required = false) boolean valid,
+                             @RequestParam(value = "encrypt", required = false) boolean encrypt,
                              ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
         dataId = dataId.trim();
@@ -62,6 +64,8 @@ public class AdminController {
             modelMap.addAttribute("message", errorMessage);
             return "/admin/config/new";
         }
+
+        content = DiamondServerUtils.tryToEncryptContent(encrypt, dataId, content);
 
         diamondService.addConfigInfo(dataId, group, content, description, valid);
 
@@ -89,6 +93,9 @@ public class AdminController {
                                @RequestParam("id") long id,
                                ModelMap modelMap) {
         diamondService.removeConfigInfo(id);
+        String result = DiamondServerUtils.processJson(request, modelMap, "Delete successfully!");
+        if (result != null) return result;
+
         modelMap.addAttribute("message", "Delete successfully!");
         return "/admin/config/list";
     }
@@ -161,8 +168,9 @@ public class AdminController {
                                @RequestParam("dataId") String dataId,
                                @RequestParam("group") String group,
                                @RequestParam("content") String content,
-                               @RequestParam(value = "description") String description,
+                               @RequestParam(value = "description", required = false) String description,
                                @RequestParam(value = "valid", required = false) boolean valid,
+                               @RequestParam(value = "encrypt", required = false) boolean encrypt,
                                ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
 
@@ -173,6 +181,8 @@ public class AdminController {
             modelMap.addAttribute("diamondStone", diamondStone);
             return "/admin/config/edit";
         }
+
+        content = DiamondServerUtils.tryToEncryptContent(encrypt, dataId, content);
 
         diamondService.updateConfigInfo(dataId, group, content, description, valid);
 
@@ -190,20 +200,13 @@ public class AdminController {
                              ModelMap modelMap) {
         Page<DiamondStone> page = diamondService.findConfigInfo(pageNo, pageSize, group, dataId);
 
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.indexOf("application/json") >= 0) {
-            try {
-                modelMap.addAttribute("pageJson", JSON.toJSONString(page));
-            } catch (Exception e) {
-                log.error("Json serialize page error", e);
-            }
-            return "/admin/config/list_json";
-        } else {
-            modelMap.addAttribute("dataId", dataId);
-            modelMap.addAttribute("group", group);
-            modelMap.addAttribute("page", page);
-            return "/admin/config/list";
-        }
+        String result = DiamondServerUtils.processJson(request, modelMap, page);
+        if (result != null) return result;
+
+        modelMap.addAttribute("dataId", dataId);
+        modelMap.addAttribute("group", group);
+        modelMap.addAttribute("page", page);
+        return "/admin/config/list";
     }
 
 
@@ -221,22 +224,14 @@ public class AdminController {
 
         Page<DiamondStone> page = diamondService.findConfigInfoLike(pageNo, pageSize, group, dataId);
 
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.indexOf("application/json") >= 0) {
-            try {
-                modelMap.addAttribute("pageJson", JSON.toJSONString(page));
-            } catch (Exception e) {
-                log.error("Json serialize page error", e);
-            }
+        String result = DiamondServerUtils.processJson(request, modelMap, page);
+        if (result != null) return result;
 
-            return "/admin/config/list_json";
-        } else {
-            modelMap.addAttribute("page", page);
-            modelMap.addAttribute("dataId", dataId);
-            modelMap.addAttribute("group", group);
-            modelMap.addAttribute("method", "listConfigLike");
-            return "/admin/config/list";
-        }
+        modelMap.addAttribute("page", page);
+        modelMap.addAttribute("dataId", dataId);
+        modelMap.addAttribute("group", group);
+        modelMap.addAttribute("method", "listConfigLike");
+        return "/admin/config/list";
     }
 
 
@@ -331,7 +326,7 @@ public class AdminController {
         String[] dataIdAndContentArray = allDataIdAndContent.split(Constants.LINE_SEPARATOR);
         group = group.trim();
 
-        List<DiamondStone> configInfoExList = new ArrayList<DiamondStone>();
+        List<DiamondStone> configInfoExList = new ArrayList<>();
         for (String dataIdAndContent : dataIdAndContentArray) {
             String[] split = dataIdAndContent.split(Constants.WORD_SEPARATOR);
             String dataId = split[0];

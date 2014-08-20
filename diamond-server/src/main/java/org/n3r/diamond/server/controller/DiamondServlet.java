@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-
 public class DiamondServlet extends HttpServlet {
     private static final long serialVersionUID = 4339468526746635388L;
 
@@ -23,7 +22,7 @@ public class DiamondServlet extends HttpServlet {
         super.init();
         WebApplicationContext webApplicationContext =
                 WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-        diamondController = (DiamondController) webApplicationContext.getBean("diamondController");
+        diamondController = webApplicationContext.getBean(DiamondController.class);
     }
 
     public void forward(HttpServletRequest request, HttpServletResponse response, String page, String basePath,

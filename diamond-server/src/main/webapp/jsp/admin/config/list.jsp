@@ -14,6 +14,47 @@
         }
 
     </script>
+    <style>
+
+
+        table.configTable {
+            border: 1px solid black;
+            width: 1000px;
+            border-collapse: collapse;
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+
+        table.configTable td, table.configTable th {
+            border: 1px solid black;
+        }
+
+        table.configTable .dataId {
+            width: 160px;
+        }
+
+        table.configTable .group {
+            width: 100px;
+        }
+
+        table.configTable .valid {
+            width: 10px;
+        }
+
+        table.configTable .content {
+            width: 450px;
+        }
+
+        table.configTable .description {
+            width: 150px;
+        }
+
+        table.configTable .operations {
+            width: 130px;
+        }
+
+
+    </style>
 </head>
 <c:url var="adminUrl" value="/admin.do">
 </c:url>
@@ -45,30 +86,30 @@
 </p>
 <p align='center'>
     <c:if test="${page!=null}">
-<table border='1' width="1000">
+<table class="configTable">
     <tr>
-        <td>dataId</td>
-        <td>group</td>
-        <td>valid</td>
-        <td>content</td>
-        <td>description</td>
-        <td>operations</td>
+        <td class="dataId">dataId</td>
+        <td class="group">group</td>
+        <td class="valid">V</td>
+        <td class="content">content</td>
+        <td class="description">description</td>
+        <td class="operations">operations</td>
     </tr>
     <c:forEach items="${page.pageItems}" var="diamondStone">
         <tr>
-            <td name="tagDataID">
+            <td name="tagDataID" class="dataId">
                 <c:out value="${diamondStone.dataId}"/>
             </td>
-            <td name="tagGroup">
+            <td name="tagGroup" class="group">
                 <c:out value="${diamondStone.group}" escapeXml="false"/>
             </td>
-            <td name="valid">
+            <td name="valid" class="valid">
                 <c:choose> <c:when test="${diamondStone.valid}">Y</c:when><c:otherwise>N</c:otherwise></c:choose>
             </td>
-            <td name="content">
+            <td name="content" class="content">
                 <pre><c:out value="${diamondStone.content}" escapeXml="false"/></pre>
             </td>
-            <td name="description">
+            <td name="description" class="description">
                 <pre><c:out value="${diamondStone.description}" escapeXml="false"/></pre>
             </td>
             <c:url var="getConfigInfoUrl" value="/admin.do">
@@ -89,10 +130,10 @@
                 <c:param name="group" value="${diamondStone.group}"/>
                 <c:param name="dataId" value="${diamondStone.dataId}"/>
             </c:url>
-            <td>
-                <a href="${getConfigInfoUrl}">Edit</a>&nbsp;&nbsp;&nbsp;
-                <a href="${deleteConfigInfoUrl}" onclick="return confirmForDelete();">Del</a>&nbsp;&nbsp;&nbsp;
-                <a href="${saveToDiskUrl}" target="_blank">Sync</a> &nbsp;&nbsp;&nbsp;
+            <td class="operations">
+                <a href="${getConfigInfoUrl}">Edit</a>&nbsp;
+                <a href="${deleteConfigInfoUrl}" onclick="return confirmForDelete();">Del</a>&nbsp;
+                <a href="${saveToDiskUrl}" target="_blank">Sync</a>&nbsp;
                 <a href="${previewUrl}" target="_blank">Preview</a>
             </td>
         </tr>

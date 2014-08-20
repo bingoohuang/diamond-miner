@@ -21,7 +21,7 @@ public class PageHelper {
                              final ParameterizedRowMapper<E> rowMapper) {
         if (pageSize == 0) return null;
 
-        int rowCount = jt.queryForInt(sqlCountRows, args);
+        int rowCount = jt.queryForObject(sqlCountRows, args, Integer.class);
 
         int pageCount = rowCount / pageSize;
 

@@ -45,7 +45,11 @@
         </tr>
         <tr>
             <td>valid:</td>
-            <td><input type='checkbox' name='valid' <c:if test="${diamondStone.valid}">checked="true" </c:if></td>
+            <td><input type='checkbox' name='valid' <c:if test="${diamondStone.valid}">checked="true" </c:if> ></td>
+        </tr>
+        <tr>
+            <td>encrypt:</td>
+            <td><input type='checkbox' name='encrypt'></td>
         </tr>
         <tr>
             <td colspan="2">content:</td>

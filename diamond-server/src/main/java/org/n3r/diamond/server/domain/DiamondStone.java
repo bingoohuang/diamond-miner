@@ -16,7 +16,6 @@ public class DiamondStone {
     // 批量查询时, 单条数据的信息
     private String message;
 
-
     public int getStatus() {
         return status;
     }
@@ -35,14 +34,20 @@ public class DiamondStone {
 
     @Override
     public String toString() {
-        return "DiamondStoneEx [status=" + status + ", message=" + message
-                + ", getDataId()=" + getDataId() + ", getGroup()=" + getGroup()
-                + ", getContent()=" + getContent() + ", getMd5()=" + getMd5()
-                + "]";
+        return "DiamondStone{" +
+                "id=" + id +
+                ", group='" + group + '\'' +
+                ", dataId='" + dataId + '\'' +
+                ", content='" + content + '\'' +
+                ", description='" + description + '\'' +
+                ", md5='" + md5 + '\'' +
+                ", valid=" + valid +
+                ", status=" + status +
+                ", message='" + message + '\'' +
+                '}';
     }
 
     public DiamondStone() {
-
     }
 
     public DiamondStone(String dataId, String group, String content, String description, boolean valid) {
