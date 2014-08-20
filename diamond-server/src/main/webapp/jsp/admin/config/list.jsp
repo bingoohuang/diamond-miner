@@ -88,8 +88,8 @@
     <c:if test="${page!=null}">
 <table class="configTable">
     <tr>
-        <td class="dataId">dataId</td>
         <td class="group">group</td>
+        <td class="dataId">dataId</td>
         <td class="valid">V</td>
         <td class="content">content</td>
         <td class="description">description</td>
@@ -97,11 +97,11 @@
     </tr>
     <c:forEach items="${page.pageItems}" var="diamondStone">
         <tr>
-            <td name="tagDataID" class="dataId">
-                <c:out value="${diamondStone.dataId}"/>
-            </td>
             <td name="tagGroup" class="group">
                 <c:out value="${diamondStone.group}" escapeXml="false"/>
+            </td>
+            <td name="tagDataID" class="dataId">
+                <c:out value="${diamondStone.dataId}"/>
             </td>
             <td name="valid" class="valid">
                 <c:choose> <c:when test="${diamondStone.valid}">Y</c:when><c:otherwise>N</c:otherwise></c:choose>

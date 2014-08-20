@@ -32,15 +32,15 @@
      </c:url>
      <form action="${uploadUrl}" method="post" enctype="multipart/form-data" id="upload-form">
         <table align='center'>
-        <tr>
+            <tr>
+                <td>group:</td>
+                <td> <input type='text' name='group' width="256" class="required max-length-128" value="DEFAULT_GROUP"/></td>
+            </tr>
+            <tr>
             <td>dataId:</td>
             <td>
                <input type='text' name='dataId' width="256" class="required max-length-128"/>
             </td>
-        </tr>
-        <tr>
-            <td>group:</td>
-            <td> <input type='text' name='group' width="256" class="required max-length-128" value="DEFAULT_GROUP"/></td>
         </tr>
          <tr>
             <td>File:</td>

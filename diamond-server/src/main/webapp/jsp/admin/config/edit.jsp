@@ -32,16 +32,16 @@
 <form action="${updateConfigUrl}" method="post" id="update-form">
     <table align='center'>
         <tr>
+            <td>group:</td>
+            <td><input type='text' readonly="true" name='group' value="${diamondStone.group}" width="256"
+                       class="required max-length-128"/></td>
+        </tr>
+        <tr>
             <td>dataId:</td>
             <td>
                 <input readonly="true" type='text' name='dataId' value="${diamondStone.dataId}" width="256"
                        class="required max-length-128"/>
             </td>
-        </tr>
-        <tr>
-            <td>group:</td>
-            <td><input type='text' readonly="true" name='group' value="${diamondStone.group}" width="256"
-                       class="required max-length-128"/></td>
         </tr>
         <tr>
             <td>valid:</td>
