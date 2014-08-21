@@ -6,6 +6,7 @@ import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.domain.Page;
 import org.n3r.diamond.server.domain.PageHelper;
 import org.n3r.diamond.server.utils.DiamondServerUtils;
+import org.n3r.diamond.server.utils.Props;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -91,22 +92,10 @@ public class PersistService {
 
         return ds;
     }
-    @Autowired
-    private ServerProperties serverProperties;
 
     private Properties readJdbcProperties() throws IOException {
-        Properties props = new Properties();
-        InputStream is = null;
-        try {
-            is = DiamondServerUtils.toInputStreamFromCdOrClasspath(serverProperties, "diamond-jdbc.properties", false);
-            props.load(is);
-        } finally {
-            IOUtils.closeQuietly(is);
-        }
-
-        return props;
+        return Props.tryProperties("diamond-jdbc.properties", ".diamond-server");
     }
-
 
     public void addConfigInfo(final DiamondStone diamondStone) {
         final Long id = jt.queryForObject("select max(id) from " + tableName, Long.class);

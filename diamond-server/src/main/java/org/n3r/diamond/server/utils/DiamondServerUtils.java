@@ -2,21 +2,18 @@ package org.n3r.diamond.server.utils;
 
 import com.alibaba.fastjson.JSON;
 import org.n3r.diamond.server.security.Pbe;
-import org.n3r.diamond.server.service.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.ModelMap;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Enumeration;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.io.File.separator;
 
 public class DiamondServerUtils {
     private static Logger log = LoggerFactory.getLogger(DiamondServerUtils.class);
@@ -135,46 +132,5 @@ public class DiamondServerUtils {
         }
 
         return newProperties;
-    }
-
-
-    public static InputStream toInputStreamFromCdOrClasspath(ServerProperties serverProperties, String pathname, boolean silent) {
-        InputStream is = readFileFromCurrentDir(new File(pathname));
-        if (is != null) return is;
-
-        is = readFileFromDiamondServerHome(serverProperties, pathname);
-        if (is != null) return is;
-
-        is = getClassPathResourceAsStream(pathname);
-        if (is != null || silent) return is;
-
-        throw new RuntimeException("fail to find " + pathname + " in current dir or classpath");
-    }
-
-    private static InputStream readFileFromDiamondServerHome(ServerProperties serverProperties, String pathname) {
-        if (serverProperties == null) return null;
-
-        String filePath = System.getProperty("user.home") + separator + ".diamond-server" + serverProperties.getDumpPostfix();
-        File dir = new File(filePath);
-        if (!dir.exists()) return null;
-
-        File file = new File(dir, pathname);
-
-        return readFileFromCurrentDir(file);
-    }
-
-    private static InputStream readFileFromCurrentDir(File file) {
-        if (!file.exists()) return null;
-            try {
-                return new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                // This should not happened
-                log.error("read file {} error", file, e);
-                return null;
-            }
-    }
-
-    public static InputStream getClassPathResourceAsStream(String resourceName) {
-        return DiamondServerUtils.class.getClassLoader().getResourceAsStream(resourceName);
     }
 }

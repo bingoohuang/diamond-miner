@@ -6,10 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,14 +21,11 @@ public class DiskService {
     private Logger log = LoggerFactory.getLogger(DiskService.class);
     private String filePath;
 
-    @Autowired
-    private ServerProperties serverProperties;
-
     private String getOrCreateFilePath() {
         if (StringUtils.isNotEmpty(filePath)) return filePath;
 
-        filePath = System.getProperty("user.home") + separator + ".diamond-server" + serverProperties.getDumpPostfix();
-        log.info("create dump home dir {} with postfix {}", filePath, serverProperties.getDumpPostfix());
+        filePath = System.getProperty("user.home") + separator + ".diamond-server";
+        log.info("create dump home dir {}", filePath);
 
         File dir = new File(filePath);
         dir.mkdirs();
