@@ -70,10 +70,10 @@
 <form name="queryForm" action="${adminUrl}">
     <table align='center'>
         <tr>
-            <td>dataId:</td>
-            <td><input type="text" name="dataId"/></td>
             <td>group:</td>
             <td><input type="text" name="group"/></td>
+            <td>dataId:</td>
+            <td><input type="text" name="dataId"/></td>
             <td>
                 <input type='hidden' name="pageNo" value='1'/>
                 <input type='hidden' name="method" value='${method}'/>
@@ -83,6 +83,10 @@
         </tr>
     </table>
 </form>
+</p>
+<p align='center'>
+    <a href="<c:url value='/jsp/admin/config/new.jsp' />">New Config</a> &nbsp;&nbsp;&nbsp;&nbsp;
+    <a href=" <c:url value='/jsp/admin/config/upload.jsp' />">Upload Config</a>
 </p>
 <p align='center'>
     <c:if test="${page!=null}">
@@ -189,9 +193,6 @@
 </p>
 </c:if>
 </p>
-<p align='center'>
-    <a href="<c:url value='/jsp/admin/config/new.jsp' />">New Config</a> &nbsp;&nbsp;&nbsp;&nbsp;
-    <a href=" <c:url value='/jsp/admin/config/upload.jsp' />">Upload Config</a>
-</p>
+
 </body>
 </html>
