@@ -191,9 +191,9 @@ public class PersistService {
     }
 
     public Page<DiamondStone> findAllConfigInfo(int pageNo, int pageSize) {
-        String sqlCountRows = "select count(id) from " + tableName + " order by id";
+        String sqlCountRows = "select count(id) from " + tableName ;
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
-                " from " + tableName + " order by id order by group_id, data_id";
+                " from " + tableName + " order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
