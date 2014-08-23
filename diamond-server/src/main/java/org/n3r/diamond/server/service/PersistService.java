@@ -157,7 +157,7 @@ public class PersistService {
     public DiamondStone findConfigInfo(final String dataId, final String group) {
         try {
             String sql = "select id,data_id,group_id,content,md5,description,valid " +
-                    " from " + tableName + " where data_id=? and group_id=?";
+                    " from " + tableName + " where data_id=? and group_id=? order by group_id, data_id";
             return jt.queryForObject(sql, new Object[]{dataId, group}, STONE_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -167,7 +167,7 @@ public class PersistService {
     public DiamondStone findConfigInfo(long id) {
         try {
             String sql = "select id,data_id,group_id,content,md5,description,valid " +
-                    " from " + tableName + " where id=?";
+                    " from " + tableName + " where id=? order by group_id, data_id";
             return jt.queryForObject(sql, new Object[]{id}, STONE_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -177,7 +177,7 @@ public class PersistService {
     public Page<DiamondStone> findConfigInfoByDataId(int pageNo, int pageSize, String dataId) {
         String sqlCountRows = "select count(id) from " + tableName + " where data_id=?";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
-                " from " + tableName + " where data_id=?";
+                " from " + tableName + " where data_id=? order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{dataId}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
@@ -185,7 +185,7 @@ public class PersistService {
     public Page<DiamondStone> findConfigInfoByGroup(int pageNo, int pageSize, String group) {
         String sqlCountRows = "select count(id) from " + tableName + " where group_id=?";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
-                " from " + tableName + " where group_id=?";
+                " from " + tableName + " where group_id=? order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{group}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
@@ -193,7 +193,7 @@ public class PersistService {
     public Page<DiamondStone> findAllConfigInfo(int pageNo, int pageSize) {
         String sqlCountRows = "select count(id) from " + tableName + " order by id";
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
-                " from " + tableName + " order by id ";
+                " from " + tableName + " order by id order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{}, pageNo, pageSize, STONE_ROW_MAPPER);
     }
@@ -220,6 +220,8 @@ public class PersistService {
             sqlCountRows += "group_id like ? ";
             sqlFetchRows += "group_id like ? ";
         }
+
+        sqlFetchRows += " order by group_id, data_id";
 
         Object[] args = null;
         if (!isBlank(dataId) && !isBlank(group)) {
