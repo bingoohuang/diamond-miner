@@ -50,7 +50,7 @@
             <td><input type='checkbox' name='valid' checked="true"></td>
         </tr>
         <tr>
-            <td>valid:</td>
+            <td>encrypt:</td>
             <td><input type='checkbox' name='encrypt'></td>
         </tr>
         <tr>

@@ -45,7 +45,8 @@
         </tr>
         <tr>
             <td>valid:</td>
-            <td><input type='checkbox' name='valid' <c:if test="${diamondStone.valid}">checked="true" </c:if> ></td>
+            <td><input type='checkbox' name='valid'
+                       <c:if test="${diamondStone.valid}">checked="true" </c:if> ></td>
         </tr>
         <tr>
             <td>encrypt:</td>
@@ -80,14 +81,18 @@
 <form action="${reuploadUrl}" method="post" enctype="multipart/form-data" id="upload-form">
     <table align='center'>
         <tr>
+            <td colspan="2"><input type='hidden' name='group' width="256" class="required max-length-128"
+                                   value="${diamondStone.group}"/></td>
+        </tr>
+        <tr>
             <td colspan="2">
                 <input type='hidden' name='dataId' width="256" class="required max-length-128"
                        value="${diamondStone.dataId}"/>
             </td>
         </tr>
         <tr>
-            <td colspan="2"><input type='hidden' name='group' width="256" class="required max-length-128"
-                                   value="${diamondStone.group}"/></td>
+            <td>valid:</td>
+            <td><input type='hidden' name='valid' <c:if test="${diamondStone.valid}">value="on" </c:if> ></td>
         </tr>
         <tr>
             <td>Reupload Config File:</td>

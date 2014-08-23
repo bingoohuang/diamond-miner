@@ -1,9 +1,9 @@
 package org.n3r.diamond.server.service;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.utils.Constants;
 import org.slf4j.Logger;
@@ -14,9 +14,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 
 @Service
 public class NotifyService {
@@ -26,55 +24,39 @@ public class NotifyService {
     private static final String URL_PREFIX = "/diamond-server/notify.do";
     private static final String PROTOCOL = "http://";
 
-    private Properties nodeProps = new Properties();
+    private List<String> servers;
 
     @Autowired
     private DiamondService diamondService;
 
     @PostConstruct
     public void loadNodes() {
-        // eg:127.0.0.1:7001=server1 127.0.0.2:7001=server2 or 127.0.0.1:7001 127.0.0.2:7001
-        DiamondStone info = diamondService.findConfigInfo("nameservers", "admin");
+        // eg:127.0.0.1:17002 127.0.0.2:17002
+        DiamondStone info = diamondService.findConfigInfo("servers", AdminService.ADMIN_GROUP);
         if (info != null) {
-            // \s+ 空格正则匹配
-            List<String> lines = Splitter.onPattern("\\s+").trimResults().omitEmptyStrings().splitToList(info.getContent());
-            for (String line : lines) {
-                int equalPos = line.indexOf('=');
-                if (equalPos < 0) {
-                    nodeProps.put(line.trim(), "");
-                } else {
-                    String key = line.substring(0, equalPos);
-                    String value = equalPos < line.length() - 1 ? line.substring(equalPos + 1) : "";
-                    nodeProps.put(key.trim(), value.trim());
-                }
-            }
+            servers = Splitter.onPattern("\\s+").trimResults()
+                    .omitEmptyStrings().splitToList(info.getContent());
+        } else {
+            servers = Lists.newArrayList();
         }
 
-        log.info("diamond-server nodes {}", nodeProps);
+        log.info("diamond-server nodes {}", servers.toString());
     }
 
     public void notifyConfigInfoChange(String dataId, String group) {
-        Enumeration<?> enu = nodeProps.propertyNames();
-        while (enu.hasMoreElements()) {
-            String address = (String) enu.nextElement();
-            // if (address.contains(LOCAL_IP)) continue;
-
-            String urlString = generateNotifyConfigInfoPath(dataId, group, address);
+        for (String server : servers) {
+            String urlString = generateNotifyConfigInfoPath(dataId, group, server);
             final String result = invokeURL(urlString);
-            log.info("Notify {} config changed {}", address, result);
+            log.info("Notify {} config changed {}", server, result);
         }
     }
 
-    String generateNotifyConfigInfoPath(String dataId, String group, String address) {
-        String specialUrl = nodeProps.getProperty(address);
-
-        HostAndPort hostAndPort = HostAndPort.fromString(address);
+    String generateNotifyConfigInfoPath(String dataId, String group, String server) {
+        HostAndPort hostAndPort = HostAndPort.fromString(server);
 
         String urlString = PROTOCOL + hostAndPort.getHostText() + ":"
                 + hostAndPort.getPortOrDefault(Constants.DEF_DIAMOND_NAMESERVER_PORT)
                 + URL_PREFIX;
-        if (StringUtils.isNotBlank(specialUrl)) urlString = specialUrl;
-
 
         return urlString + "?method=notifyConfigInfo&dataId=" + dataId + "&group=" + group;
     }

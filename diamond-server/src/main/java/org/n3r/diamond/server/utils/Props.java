@@ -71,4 +71,20 @@ public class Props {
         return Props.class.getClassLoader().getResourceAsStream(resourceName);
     }
 
+
+    public static String getPropertyAsString(Properties prop) {
+        StringWriter writer = new StringWriter();
+        try {
+            prop.store(writer, null);
+            String string = writer.toString();
+            String sep = System.getProperty("line.separator");
+            // remove the first comment
+            return string.substring(string.indexOf(sep) + sep.length());
+        } catch (IOException e) {
+        }
+
+        return "";
+    }
+
+
 }

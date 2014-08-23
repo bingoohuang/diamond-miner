@@ -1,12 +1,7 @@
 package org.n3r.diamond.server.utils;
 
-import com.alibaba.fastjson.JSON;
 import org.n3r.diamond.server.security.Pbe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.ui.ModelMap;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -14,53 +9,14 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.n3r.diamond.server.utils.Str.paddingBase64;
+import static org.n3r.diamond.server.utils.Str.purifyBase64;
 
-public class DiamondServerUtils {
-    private static Logger log = LoggerFactory.getLogger(DiamondServerUtils.class);
-
-    public static String processJson(HttpServletRequest request, ModelMap modelMap, Object page) {
-        String accept = request.getHeader("Accept");
-        if (accept != null && accept.indexOf("application/json") >= 0) {
-            try {
-                modelMap.addAttribute("pageJson", JSON.toJSONString(page));
-            } catch (Exception e) {
-                log.error("Json serialize page error", e);
-            }
-
-            return "/admin/config/list_json";
-        }
-
-        return null;
-    }
-
-    public static StringBuilder removeLastLetters(String s, char letter) {
-        StringBuilder sb = new StringBuilder(s);
-        while (sb.charAt(sb.length() - 1) == letter)
-            sb.deleteCharAt(sb.length() - 1);
-
-        return sb;
-    }
-
-    public static StringBuilder padding(String s, char letter, int repeats) {
-        StringBuilder sb = new StringBuilder(s);
-        while (repeats-- > 0) {
-            sb.append(letter);
-        }
-
-        return sb;
-    }
-
-    public static String purifyBase64(String s) {
-        return removeLastLetters(s, '=').toString();
-    }
-
-    public static String paddingBase64(String s) {
-        return padding(s, '=', s.length() % 4).toString();
-    }
+public class Encrypt {
 
     public static String tryToEncryptContent(boolean encrypt, String dataId, String content) {
         Properties properties = tryEncryptProperties(content);
-        if (properties != null) return getPropertyAsString(properties);
+        if (properties != null) return Props.getPropertyAsString(properties);
 
         return encrypt ? encryptValueWithKey(content, dataId) : content;
     }
@@ -92,17 +48,8 @@ public class DiamondServerUtils {
         return hasRequiredEncryptValue ? properties : null;
     }
 
-    private static String encryptValueWithKey(String origin, String key) {
+    public static String encryptValueWithKey(String origin, String key) {
         return "{PBE}" + purifyBase64(Pbe.encrypt(origin, key));
-    }
-
-    public static String getPropertyAsString(Properties prop) {
-        StringWriter writer = new StringWriter();
-        try {
-            prop.store(writer, "");
-        } catch (IOException e) {
-        }
-        return writer.getBuffer().toString();
     }
 
 
@@ -129,6 +76,17 @@ public class DiamondServerUtils {
         for (String key : properties.stringPropertyNames()) {
             String property = properties.getProperty(key);
             newProperties.put(key, tryDecrypt(property, key));
+        }
+
+        return newProperties;
+    }
+
+    public static Properties encrypt(Properties properties) {
+        Properties newProperties = new Properties();
+
+        for (String key : properties.stringPropertyNames()) {
+            String property = properties.getProperty(key);
+            newProperties.put(key, encryptValueWithKey(property, key));
         }
 
         return newProperties;

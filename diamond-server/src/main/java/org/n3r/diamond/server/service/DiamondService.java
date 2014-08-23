@@ -111,11 +111,9 @@ public class DiamondService {
         }
     }
 
-
     public DiamondStone findConfigInfo(String dataId, String group) {
         return persistService.findConfigInfo(dataId, group);
     }
-
 
     public Page<DiamondStone> findConfigInfo(final int pageNo, final int pageSize, final String group, final String dataId) {
         if (hasLength(dataId) && hasLength(group)) {

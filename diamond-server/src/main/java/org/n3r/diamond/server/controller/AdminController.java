@@ -11,7 +11,8 @@ import org.n3r.diamond.server.service.AdminService;
 import org.n3r.diamond.server.service.DiamondService;
 import org.n3r.diamond.server.service.PersistService;
 import org.n3r.diamond.server.utils.Constants;
-import org.n3r.diamond.server.utils.DiamondServerUtils;
+import org.n3r.diamond.server.utils.Encrypt;
+import org.n3r.diamond.server.utils.Json;
 import org.n3r.diamond.server.utils.GlobalCounter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +66,7 @@ public class AdminController {
             return "/admin/config/new";
         }
 
-        content = DiamondServerUtils.tryToEncryptContent(encrypt, dataId, content);
+        content = Encrypt.tryToEncryptContent(encrypt, dataId, content);
 
         diamondService.addConfigInfo(dataId, group, content, description, valid);
 
@@ -93,7 +94,7 @@ public class AdminController {
                                @RequestParam("id") long id,
                                ModelMap modelMap) {
         diamondService.removeConfigInfo(id);
-        String result = DiamondServerUtils.processJson(request, modelMap, "Delete successfully!");
+        String result = Json.processJson(request, modelMap, "Delete successfully!");
         if (result != null) return result;
 
         modelMap.addAttribute("message", "Delete successfully!");
@@ -107,6 +108,7 @@ public class AdminController {
                          @RequestParam("group") String group,
                          @RequestParam(value = "description", required = false) String description,
                          @RequestParam(value = "valid", required = false) boolean valid,
+                         @RequestParam(value = "encrypt", required = false) boolean encrypt,
                          @RequestParam("contentFile") MultipartFile contentFile,
                          ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
@@ -117,6 +119,8 @@ public class AdminController {
             modelMap.addAttribute("message", errorMessage);
             return "/admin/config/upload";
         }
+
+        content = Encrypt.tryToEncryptContent(encrypt, dataId, content);
 
         diamondService.addConfigInfo(dataId, group, content, description, valid);
         modelMap.addAttribute("message", "Submit Successfully!");
@@ -133,6 +137,7 @@ public class AdminController {
                            @RequestParam("group") String group,
                            @RequestParam(value = "description", required = false) String description,
                            @RequestParam(value = "valid", required = false) boolean valid,
+                           @RequestParam(value = "encrypt", required = false) boolean encrypt,
                            @RequestParam("contentFile") MultipartFile contentFile,
                            ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
@@ -147,6 +152,7 @@ public class AdminController {
             return "/admin/config/edit";
         }
 
+        content = Encrypt.tryToEncryptContent(encrypt, dataId, content);
         diamondService.updateConfigInfo(dataId, group, content, description, valid);
 
         modelMap.addAttribute("message", "Update Successfully!");
@@ -182,7 +188,7 @@ public class AdminController {
             return "/admin/config/edit";
         }
 
-        content = DiamondServerUtils.tryToEncryptContent(encrypt, dataId, content);
+        content = Encrypt.tryToEncryptContent(encrypt, dataId, content);
 
         diamondService.updateConfigInfo(dataId, group, content, description, valid);
 
@@ -200,7 +206,7 @@ public class AdminController {
                              ModelMap modelMap) {
         Page<DiamondStone> page = diamondService.findConfigInfo(pageNo, pageSize, group, dataId);
 
-        String result = DiamondServerUtils.processJson(request, modelMap, page);
+        String result = Json.processJson(request, modelMap, page);
         if (result != null) return result;
 
         modelMap.addAttribute("dataId", dataId);
@@ -224,7 +230,7 @@ public class AdminController {
 
         Page<DiamondStone> page = diamondService.findConfigInfoLike(pageNo, pageSize, group, dataId);
 
-        String result = DiamondServerUtils.processJson(request, modelMap, page);
+        String result = Json.processJson(request, modelMap, page);
         if (result != null) return result;
 
         modelMap.addAttribute("page", page);
