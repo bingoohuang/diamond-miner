@@ -91,8 +91,8 @@
             </td>
         </tr>
         <tr>
-            <td>valid:</td>
-            <td><input type='hidden' name='valid' <c:if test="${diamondStone.valid}">value="on" </c:if> ></td>
+            <td colspan="2">
+            <input type='hidden' name='valid' <c:if test="${diamondStone.valid}">value="on" </c:if> ></td>
         </tr>
         <tr>
             <td>Reupload Config File:</td>
