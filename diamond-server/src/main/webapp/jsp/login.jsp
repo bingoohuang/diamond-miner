@@ -3,7 +3,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Diamond-Server Administration Console Loggin</title>
+    <title>Diamond-Server Administration Console Login</title>
+    <c:url var="logoutUrl" value="/login.do">
+        <c:param name="method" value="logout"/>
+    </c:url>
+    <script>
+        if (window.parent && window.parent.length != 0) {
+            window.parent.location.href = "${logoutUrl}";
+        }
+    </script>
 </head>
 <body>
 <c:import url="/jsp/common/message.jsp"/>
@@ -11,6 +19,7 @@
     <c:url var="url" value="/login.do">
         <c:param name="method" value="login"/>
     </c:url>
+
     <form method='post' action="${url}">
         <table>
             <tr>
