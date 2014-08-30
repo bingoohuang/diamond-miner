@@ -76,10 +76,7 @@ public class Props {
         StringWriter writer = new StringWriter();
         try {
             prop.store(writer, null);
-            String string = writer.toString();
-            String sep = System.getProperty("line.separator");
-            // remove the first comment
-            return string.substring(string.indexOf(sep) + sep.length());
+            return writer.toString();
         } catch (IOException e) {
         }
 
