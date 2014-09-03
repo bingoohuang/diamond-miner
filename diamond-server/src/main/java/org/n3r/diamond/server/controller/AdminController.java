@@ -332,7 +332,7 @@ public class AdminController {
         String[] dataIdAndContentArray = allDataIdAndContent.split(Constants.LINE_SEPARATOR);
         group = group.trim();
 
-        List<DiamondStone> configInfoExList = new ArrayList<>();
+        List<DiamondStone> configInfoExList = new ArrayList<DiamondStone>();
         for (String dataIdAndContent : dataIdAndContentArray) {
             String[] split = dataIdAndContent.split(Constants.WORD_SEPARATOR);
             String dataId = split[0];

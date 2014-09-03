@@ -116,11 +116,8 @@ public class DiamondController {
 
 
     public String getRealRemoteIP(HttpServletRequest request) {
-        if (request.getHeader("x-forwarded-for") == null) {
-            return request.getRemoteAddr();
-        }
-
-        return request.getHeader("x-forwarded-for");
+        String xForwardedFor = request.getHeader("x-forwarded-for");
+        return xForwardedFor != null ? xForwardedFor : request.getRemoteAddr();
     }
 
 
@@ -129,6 +126,7 @@ public class DiamondController {
         if (null == configKeysString || "".equals(configKeysString)) {
             return configKeyList;
         }
+
         String[] configKeyStrings = configKeysString.split(Constants.LINE_SEPARATOR);
         for (String configKeyString : configKeyStrings) {
             String[] configKey = configKeyString.split(Constants.WORD_SEPARATOR);

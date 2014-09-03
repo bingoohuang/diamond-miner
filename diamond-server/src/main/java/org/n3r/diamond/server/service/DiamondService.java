@@ -120,7 +120,7 @@ public class DiamondService {
             DiamondStone DiamondStone = persistService.findConfigInfo(dataId, group);
             if (DiamondStone == null) return null;
 
-            Page<DiamondStone> page = new Page<>();
+            Page<DiamondStone> page = new Page<DiamondStone>();
             page.setPageNo(1);
             page.setTotalPages(1);
             page.getPageItems().add(DiamondStone);
