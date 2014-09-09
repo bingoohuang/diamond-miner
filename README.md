@@ -34,7 +34,7 @@ a java config system base on taobao diamond, main changes included:
         `group_id` varchar(128) not null default ' ',
         `content` longtext not null,
         `md5` varchar(32) not null default ' ',
-        `description` varchar(256) default null,
+        `description` longtext default null,
         `valid` tinyint(1) not null default 1,
         `gmt_create` datetime not null default '2010-05-05 00:00:00',
         `gmt_modified` datetime not null default '2010-05-05 00:00:00',

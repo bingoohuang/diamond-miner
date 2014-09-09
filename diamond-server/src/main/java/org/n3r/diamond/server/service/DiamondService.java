@@ -1,7 +1,6 @@
 package org.n3r.diamond.server.service;
 
 import com.google.common.base.Throwables;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.domain.Page;
 import org.slf4j.Logger;
@@ -34,8 +33,12 @@ public class DiamondService {
     private final ConcurrentHashMap<String, String> contentMD5Cache = new ConcurrentHashMap<String, String>();
 
     public void updateMD5Cache(DiamondStone diamondStone) {
-        contentMD5Cache.put(createMD5CacheKey(diamondStone.getDataId(),
-                diamondStone.getGroup()), DigestUtils.md5Hex(diamondStone.getContent()));
+        String md5CacheKey = createMD5CacheKey(diamondStone.getDataId(), diamondStone.getGroup());
+        if (diamondStone.isValid()) {
+            contentMD5Cache.put(md5CacheKey, diamondStone.getMd5());
+        } else {
+            contentMD5Cache.remove(md5CacheKey);
+        }
     }
 
     public String getCacheContentMD5(String dataId, String group) {
@@ -67,8 +70,8 @@ public class DiamondService {
         DiamondStone diamondStone = new DiamondStone(dataId, group, content, description, valid);
         try {
             persistService.addConfigInfo(diamondStone);
-            contentMD5Cache.put(createMD5CacheKey(dataId, group), diamondStone.getMd5());
-            diskService.saveToDisk(diamondStone);
+            updateMD5Cache(diamondStone);
+            diskService.updateToDisk(diamondStone);
             notifyOtherNodes(dataId, group);
         } catch (Exception e) {
             log.error("addConfigInfo error", e);
@@ -81,13 +84,8 @@ public class DiamondService {
         DiamondStone diamondStone = new DiamondStone(dataId, group, content, description, valid);
         try {
             persistService.updateConfigInfo(diamondStone);
-
-            String key = createMD5CacheKey(dataId, group);
-            if (valid) contentMD5Cache.put(key, diamondStone.getMd5());
-            else contentMD5Cache.remove(key);
-
-            diskService.saveToDisk(diamondStone);
-
+            updateMD5Cache(diamondStone);
+            diskService.updateToDisk(diamondStone);
             notifyOtherNodes(dataId, group);
         } catch (Exception e) {
             log.error("updateConfigInfo error", e);
@@ -98,12 +96,9 @@ public class DiamondService {
     public void loadConfigInfoToDisk(String dataId, String group) {
         try {
             DiamondStone diamondStone = persistService.findConfigInfo(dataId, group);
-            if (diamondStone != null && diamondStone.isValid()) {
-                contentMD5Cache.put(createMD5CacheKey(dataId, group), diamondStone.getMd5());
-                diskService.saveToDisk(diamondStone);
-            } else {
-                contentMD5Cache.remove(createMD5CacheKey(dataId, group));
-                diskService.removeConfigInfo(dataId, group);
+            if (diamondStone != null) {
+                updateMD5Cache(diamondStone);
+                diskService.updateToDisk(diamondStone);
             }
         } catch (Exception e) {
             log.error("loadConfigInfoToDisk error", e);

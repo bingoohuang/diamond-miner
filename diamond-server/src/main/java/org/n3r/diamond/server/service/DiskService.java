@@ -42,7 +42,12 @@ public class DiskService {
         return diamondFile;
     }
 
-    public void saveToDisk(DiamondStone diamondStone) {
+    public void updateToDisk(DiamondStone diamondStone) {
+        if (!diamondStone.isValid()) {
+            removeConfigInfo(diamondStone.getDataId(), diamondStone.getGroup());
+            return;
+        }
+
         String group = diamondStone.getGroup();
         String dataId = diamondStone.getDataId();
         String content = diamondStone.getContent();
@@ -55,7 +60,7 @@ public class DiskService {
             FileUtils.writeStringToFile(tempFile, content, ENCODING);
             FileUtils.copyFile(tempFile, targetFile);
         } catch (Exception e) {
-            log.error("save disk error, dataId={},group={}", dataId, group, e);
+            log.error("save disk error, dataId={},group={}, error={}", dataId, group, e.getMessage());
             throw Throwables.propagate(e);
         } finally {
             FileUtils.deleteQuietly(tempFile);

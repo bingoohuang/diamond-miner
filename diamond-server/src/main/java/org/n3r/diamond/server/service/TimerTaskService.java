@@ -79,12 +79,8 @@ public class TimerTaskService {
                 if (diamondStone == null) continue;
 
                 try {
-                    if (diamondStone.isValid()) {
-                        diamondService.updateMD5Cache(diamondStone);
-                        diskService.saveToDisk(diamondStone);
-                    } else {
-                        diamondService.removeConfigInfo(diamondStone.getId());
-                    }
+                    diamondService.updateMD5Cache(diamondStone);
+                    diskService.updateToDisk(diamondStone);
                 } catch (Throwable t) {
                     log.error("dump config info error, dataId="
                             + diamondStone.getDataId() + ", group=" + diamondStone.getGroup(), t);
