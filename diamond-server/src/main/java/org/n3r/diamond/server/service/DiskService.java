@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.io.File.separator;
 import static org.n3r.diamond.server.utils.Constants.*;
@@ -20,6 +21,9 @@ import static org.n3r.diamond.server.utils.Constants.*;
 public class DiskService {
     private Logger log = LoggerFactory.getLogger(DiskService.class);
     private String filePath;
+    // 修改标记缓存
+    private ConcurrentHashMap<String/* dataId + group */, Boolean/* 是否正在修改 */> modifyMarkCache =
+            new ConcurrentHashMap<String, Boolean>();
 
     private String getOrCreateFilePath() {
         if (StringUtils.isNotEmpty(filePath)) return filePath;
@@ -33,7 +37,6 @@ public class DiskService {
 
         return filePath;
     }
-
 
     public File getDiamondFile(String dataId, String group) {
         File diamondFile = new File(getOrCreateFilePath() + separator + BASE_DIR
@@ -52,10 +55,16 @@ public class DiskService {
         String dataId = diamondStone.getDataId();
         String content = diamondStone.getContent();
         File tempFile = null;
+
+        String cacheKey = generateCacheKey(group, dataId);
+        // 标记正在写磁盘
+        if (modifyMarkCache.putIfAbsent(cacheKey, true) != null)
+            throw new RuntimeException("config info is being motified, dataId=" + dataId + ",group=" + group);
+
         try {
             String groupPath = getFilePath(BASE_DIR + separator + group);
             new File(groupPath).mkdirs();
-            File targetFile = createFileIfNessary(groupPath, dataId + DIAMOND_STONE_EXT);
+            File targetFile = createFileIfNecessary(groupPath, dataId + DIAMOND_STONE_EXT);
             tempFile = createTempFile(dataId, group);
             FileUtils.writeStringToFile(tempFile, content, ENCODING);
             FileUtils.copyFile(tempFile, targetFile);
@@ -64,11 +73,24 @@ public class DiskService {
             throw Throwables.propagate(e);
         } finally {
             FileUtils.deleteQuietly(tempFile);
+            modifyMarkCache.remove(cacheKey); // 清除标记
         }
+    }
 
+    public boolean isUnderModifing(String dataId, String group) {
+        return modifyMarkCache.get(generateCacheKey(group, dataId)) != null;
+    }
+
+    public final String generateCacheKey(String group, String dataId) {
+        return group + "/" + dataId;
     }
 
     public void removeConfigInfo(String dataId, String group) {
+        String cacheKey = generateCacheKey(group, dataId);
+        // 标记正在写磁盘
+        if (modifyMarkCache.putIfAbsent(cacheKey, true) != null)
+            throw new RuntimeException("config info is being motified, dataId=" + dataId + ",group=" + group);
+
         try {
             String basePath = getFilePath(BASE_DIR);
             new File(basePath).mkdirs();
@@ -86,18 +108,18 @@ public class DiskService {
 
             FileUtils.deleteQuietly(dataFile);
         } catch (Exception e) {
-            log.error("delete config info error, dataId={},group={}", dataId, group, e);
+            log.error("delete config info error, dataId={},group={}, error={}", dataId, group, e.getMessage());
             throw Throwables.propagate(e);
+        } finally {
+            modifyMarkCache.remove(cacheKey); // 清除标记
         }
     }
-
 
     private String getFilePath(String dir) throws FileNotFoundException {
         return getOrCreateFilePath() + separator + dir; // // WebUtils.getRealPath(servletContext,
     }
 
-
-    private File createFileIfNessary(String parent, String child) throws IOException {
+    private File createFileIfNecessary(String parent, String child) throws IOException {
         final File file = new File(parent, child);
         if (!file.exists()) {
             file.createNewFile();
@@ -105,7 +127,6 @@ public class DiskService {
         }
         return file;
     }
-
 
     private void changeFilePermission(File file) {
         // 600
@@ -120,5 +141,4 @@ public class DiskService {
     private File createTempFile(String dataId, String group) throws IOException {
         return File.createTempFile(group + "-" + dataId, ".tmp");
     }
-
 }

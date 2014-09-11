@@ -30,6 +30,8 @@ public class DiamondController {
 
     public String getConfig(HttpServletRequest request, HttpServletResponse response, String dataId, String group) throws IOException {
         response.setHeader("Content-Type", "text/html;charset=UTF-8");
+        response.setHeader("Diamond-Server", "Diamond-Server"); // client will check this to ensure result is responded from here
+
         final String address = getRealRemoteIP(request);
         if (address == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -42,19 +44,34 @@ public class DiamondController {
         }
 
         String md5 = this.diamondService.getCacheContentMD5(dataId, group);
-        if (md5 == null) {
-            return "404";
-        }
+        if (md5 == null) return "404";
 
         response.setHeader(Constants.CONTENT_MD5, md5);
 
+        // 正在被修改，返回304，这里的检查并没有办法保证一致性，因此做double-check尽力保证
+        if (diskService.isUnderModifing(dataId, group)) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return "304";
+        }
+        File path = diskService.getDiamondFile(dataId, group);
+        // 再次检查
+        if (diskService.isUnderModifing(dataId, group)) {
+            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            return "304";
+        }
+
         invalidHttpCache(response);
 
-        File path = diskService.getDiamondFile(dataId, group);
         if (!path.exists() || !path.isFile()) return "404";
 
         response.setDateHeader("Last-Modified", path.lastModified());
 
+        copyFileToResponse(response, path);
+
+        return "OK";
+    }
+
+    private void copyFileToResponse(HttpServletResponse response, File path) throws IOException {
         ServletOutputStream outputStream = null;
         FileInputStream fis = null;
         try {
@@ -65,13 +82,13 @@ public class DiamondController {
             IOUtils.closeQuietly(fis);
             IOUtils.closeQuietly(outputStream);
         }
-
-        return "OK";
     }
 
 
     public String getProbeModifyResult(HttpServletRequest request, HttpServletResponse response, String probeModify) {
         response.setHeader("Content-Type", "text/html;charset=UTF-8");
+        response.setHeader("Diamond-Server", "Diamond-Server"); // client will check this to ensure result is responded from here
+
         final String address = getRealRemoteIP(request);
         if (address == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
