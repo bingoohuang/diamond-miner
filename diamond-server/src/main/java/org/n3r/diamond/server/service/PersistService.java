@@ -1,6 +1,6 @@
 package org.n3r.diamond.server.service;
 
-import org.apache.commons.dbcp.BasicDataSource;
+import com.alibaba.druid.pool.DruidDataSource;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.domain.Page;
 import org.n3r.diamond.server.domain.PageHelper;
@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -60,19 +61,19 @@ public class PersistService {
     @PostConstruct
     public void initDataSource() throws Exception {
         Properties props = readJdbcProperties();
-        BasicDataSource ds = createBasicDataSource(props);
+        DataSource ds = createDataSource(props);
         createJdbcTemplate(ds);
     }
 
-    private void createJdbcTemplate(BasicDataSource ds) {
+    private void createJdbcTemplate(DataSource ds) {
         jt = new JdbcTemplate();
         jt.setDataSource(ds);
         jt.setMaxRows(MAX_ROWS);
         jt.setQueryTimeout(QUERY_TIMEOUT);
     }
 
-    private BasicDataSource createBasicDataSource(Properties props) {
-        BasicDataSource ds = new BasicDataSource();
+    private DataSource createDataSource(Properties props) {
+        DruidDataSource ds = new DruidDataSource();
 
         driverClassName = getPropStr(props, ("db.driver"));
         tableName = getPropStr(props, "db.tableName", "diamond_stones");
@@ -82,9 +83,9 @@ public class PersistService {
         ds.setPassword(getPropStr(props, "db.password"));
         ds.setInitialSize(Integer.parseInt(getPropStr(props, "db.initialSize")));
         ds.setMaxActive(Integer.parseInt(getPropStr(props, "db.maxActive")));
-        ds.setMaxIdle(Integer.parseInt(getPropStr(props, "db.maxIdle")));
         ds.setMaxWait(Long.parseLong(getPropStr(props, "db.maxWait")));
         ds.setPoolPreparedStatements(Boolean.parseBoolean(getPropStr(props, "db.poolPreparedStatements")));
+        ds.setMaxWait(10 * 1000);
 
         return ds;
     }
@@ -187,7 +188,7 @@ public class PersistService {
     }
 
     public Page<DiamondStone> findAllConfigInfo(int pageNo, int pageSize) {
-        String sqlCountRows = "select count(id) from " + tableName ;
+        String sqlCountRows = "select count(id) from " + tableName;
         String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
                 " from " + tableName + " order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
