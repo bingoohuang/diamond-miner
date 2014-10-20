@@ -38,7 +38,7 @@ public class PersistService {
             info.setDataId(rs.getString("data_id"));
             info.setGroup(rs.getString("group_id"));
             info.setContent(rs.getString("content"));
-            info.setMd5(rs.getString("md5"));
+            info.createMd5();
             info.setDescription(rs.getString("description"));
             info.setValid(rs.getBoolean("valid"));
             return info;
@@ -98,8 +98,8 @@ public class PersistService {
         final Long id = jt.queryForObject("select max(id) from " + tableName, Long.class);
 
         String sql = "insert into " + tableName
-                + "(id,data_id,group_id,content,md5,gmt_create,gmt_modified,description,valid) "
-                + " values(?,?,?,?,?,?,?,?,?)";
+                + "(id,data_id,group_id,content,gmt_create,gmt_modified,description,valid) "
+                + " values(?,?,?,?,?,?,?,?)";
         PreparedStatementSetter pss = new PreparedStatementSetter() {
             public void setValues(PreparedStatement ps) throws SQLException {
                 int index = 1;
@@ -107,7 +107,6 @@ public class PersistService {
                 ps.setString(index++, diamondStone.getDataId());
                 ps.setString(index++, diamondStone.getGroup());
                 ps.setString(index++, diamondStone.getContent());
-                ps.setString(index++, diamondStone.getMd5());
                 Timestamp time = new Timestamp(System.currentTimeMillis());
                 ps.setTimestamp(index++, time);
                 ps.setTimestamp(index++, time);
@@ -132,13 +131,12 @@ public class PersistService {
 
     public void updateConfigInfo(final DiamondStone diamondStone) {
         String sql = "update " + tableName +
-                " set content=?,md5=?,gmt_modified=?,description=?,valid=? " +
+                " set content=?,gmt_modified=?,description=?,valid=? " +
                 " where data_id=? and group_id=?";
         PreparedStatementSetter pss = new PreparedStatementSetter() {
             public void setValues(PreparedStatement ps) throws SQLException {
                 int index = 1;
                 ps.setString(index++, diamondStone.getContent());
-                ps.setString(index++, diamondStone.getMd5());
                 Timestamp time = new Timestamp(System.currentTimeMillis());
                 ps.setTimestamp(index++, time);
                 ps.setString(index++, diamondStone.getDescription());
@@ -153,7 +151,7 @@ public class PersistService {
 
     public DiamondStone findConfigInfo(final String dataId, final String group) {
         try {
-            String sql = "select id,data_id,group_id,content,md5,description,valid " +
+            String sql = "select id,data_id,group_id,content,description,valid " +
                     " from " + tableName + " where data_id=? and group_id=? order by group_id, data_id";
             return jt.queryForObject(sql, new Object[]{dataId, group}, STONE_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
@@ -163,7 +161,7 @@ public class PersistService {
 
     public DiamondStone findConfigInfo(long id) {
         try {
-            String sql = "select id,data_id,group_id,content,md5,description,valid " +
+            String sql = "select id,data_id,group_id,content,description,valid " +
                     " from " + tableName + " where id=? order by group_id, data_id";
             return jt.queryForObject(sql, new Object[]{id}, STONE_ROW_MAPPER);
         } catch (EmptyResultDataAccessException e) {
@@ -173,7 +171,7 @@ public class PersistService {
 
     public Page<DiamondStone> findConfigInfoByDataId(int pageNo, int pageSize, String dataId) {
         String sqlCountRows = "select count(id) from " + tableName + " where data_id=?";
-        String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
+        String sqlFetchRows = "select id,data_id,group_id,content,description,valid " +
                 " from " + tableName + " where data_id=? order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{dataId}, pageNo, pageSize, STONE_ROW_MAPPER);
@@ -181,7 +179,7 @@ public class PersistService {
 
     public Page<DiamondStone> findConfigInfoByGroup(int pageNo, int pageSize, String group) {
         String sqlCountRows = "select count(id) from " + tableName + " where group_id=?";
-        String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
+        String sqlFetchRows = "select id,data_id,group_id,content,description,valid " +
                 " from " + tableName + " where group_id=? order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{group}, pageNo, pageSize, STONE_ROW_MAPPER);
@@ -189,7 +187,7 @@ public class PersistService {
 
     public Page<DiamondStone> findAllConfigInfo(int pageNo, int pageSize) {
         String sqlCountRows = "select count(id) from " + tableName;
-        String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
+        String sqlFetchRows = "select id,data_id,group_id,content,description,valid " +
                 " from " + tableName + " order by group_id, data_id";
         return PageHelper.fetchPage(driverClassName, jt, sqlCountRows,
                 sqlFetchRows, new Object[]{}, pageNo, pageSize, STONE_ROW_MAPPER);
@@ -200,7 +198,7 @@ public class PersistService {
             return findAllConfigInfo(pageNo, pageSize);
 
         String sqlCountRows = "select count(id) from " + tableName + " where ";
-        String sqlFetchRows = "select id,data_id,group_id,content,md5,description,valid " +
+        String sqlFetchRows = "select id,data_id,group_id,content,description,valid " +
                 " from " + tableName + " where ";
 
         if (!isBlank(dataId)) {

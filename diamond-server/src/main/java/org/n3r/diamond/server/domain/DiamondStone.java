@@ -60,6 +60,9 @@ public class DiamondStone {
         this.valid = valid;
     }
 
+    public void createMd5() {
+        if (this.content != null) this.md5 = DigestUtils.md5Hex(this.content);
+    }
 
     public long getId() {
         return id;
@@ -104,11 +107,6 @@ public class DiamondStone {
         return md5;
     }
 
-
-    public void setMd5(String md5) {
-        this.md5 = md5;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -124,4 +122,5 @@ public class DiamondStone {
     public void setValid(boolean valid) {
         this.valid = valid;
     }
+
 }
