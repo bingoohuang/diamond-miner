@@ -132,8 +132,7 @@ public class PersistService {
             public void setValues(PreparedStatement ps) throws SQLException {
                 int index = 1;
                 ps.setString(index++, diamondStone.getContent());
-                Timestamp time = new Timestamp(System.currentTimeMillis());
-                ps.setTimestamp(index++, time);
+                ps.setTimestamp(index++, new Timestamp(System.currentTimeMillis()));
                 ps.setString(index++, diamondStone.getDescription());
                 ps.setBoolean(index++, diamondStone.isValid());
                 ps.setString(index++, diamondStone.getId());
