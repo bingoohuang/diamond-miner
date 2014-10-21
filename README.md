@@ -28,18 +28,33 @@ a java config system base on taobao diamond, main changes included:
 + create table
 
 ```sql
-    create table `diamond_stones` (
-        `id` bigint(64) unsigned not null auto_increment,
-        `data_id` varchar(255) not null default ' ',
-        `group_id` varchar(128) not null default ' ',
-        `content` longtext not null,
-        `description` longtext default null,
-        `valid` tinyint(1) not null default 1,
-        `gmt_create` datetime not null default '2010-05-05 00:00:00',
-        `gmt_modified` datetime not null default '2010-05-05 00:00:00',
-        primary key (`id`),
-        unique key `uk_diamond_datagroup` (`data_id`,`group_id`)
-    ) default charset=utf8;
+create table diamond_stones (
+    id varchar(255) not null,
+    data_id varchar(255) not null,
+    group_id varchar(128) not null,
+    content longtext not null,
+    description longtext default null,
+    valid tinyint(1) not null default 1,
+    gmt_create datetime not null,
+    gmt_modified datetime not null,
+    primary key (id),
+    unique key uk_diamond_datagroup (data_id,group_id)
+) default charset=utf8;
+```
+
+```sql
+create table diamond_stones (
+    id varchar2(400) not null primary key,
+    data_id varchar2(255) not null,
+    group_id varchar2(128) not null,
+    content long not null,
+    description varchar2(1024),
+    valid number(1,0) default 1,
+    gmt_create date not null,
+    gmt_modified date not null
+);
+
+create index idx_diamond_stones on diamond_stones(data_id, group_id);
 ```
 
 + create user

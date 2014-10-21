@@ -34,11 +34,10 @@ public class PersistService {
     private static final class DiamondStoneRowMapper implements ParameterizedRowMapper<DiamondStone> {
         public DiamondStone mapRow(ResultSet rs, int rowNum) throws SQLException {
             DiamondStone info = new DiamondStone();
-            info.setId(rs.getLong("id"));
             info.setDataId(rs.getString("data_id"));
             info.setGroup(rs.getString("group_id"));
             info.setContent(rs.getString("content"));
-            info.createMd5();
+            info.createIdAndMd5();
             info.setDescription(rs.getString("description"));
             info.setValid(rs.getBoolean("valid"));
             return info;
@@ -95,15 +94,13 @@ public class PersistService {
     }
 
     public void addConfigInfo(final DiamondStone diamondStone) {
-        final Long id = jt.queryForObject("select max(id) from " + tableName, Long.class);
-
         String sql = "insert into " + tableName
                 + "(id,data_id,group_id,content,gmt_create,gmt_modified,description,valid) "
                 + " values(?,?,?,?,?,?,?,?)";
         PreparedStatementSetter pss = new PreparedStatementSetter() {
             public void setValues(PreparedStatement ps) throws SQLException {
                 int index = 1;
-                ps.setLong(index++, id == null ? 1 : id + 1);
+                ps.setString(index++, diamondStone.getId());
                 ps.setString(index++, diamondStone.getDataId());
                 ps.setString(index++, diamondStone.getGroup());
                 ps.setString(index++, diamondStone.getContent());
@@ -119,12 +116,10 @@ public class PersistService {
 
 
     public void removeConfigInfo(final DiamondStone diamondStone) {
-        String sql = "delete from " + tableName + " where data_id=? and group_id=?";
+        String sql = "delete from " + tableName + " where id=?";
         jt.update(sql, new PreparedStatementSetter() {
             public void setValues(PreparedStatement ps) throws SQLException {
-                int index = 1;
-                ps.setString(index++, diamondStone.getDataId());
-                ps.setString(index++, diamondStone.getGroup());
+                ps.setString(1, diamondStone.getId());
             }
         });
     }
@@ -132,7 +127,7 @@ public class PersistService {
     public void updateConfigInfo(final DiamondStone diamondStone) {
         String sql = "update " + tableName +
                 " set content=?,gmt_modified=?,description=?,valid=? " +
-                " where data_id=? and group_id=?";
+                " where id=?";
         PreparedStatementSetter pss = new PreparedStatementSetter() {
             public void setValues(PreparedStatement ps) throws SQLException {
                 int index = 1;
@@ -141,8 +136,7 @@ public class PersistService {
                 ps.setTimestamp(index++, time);
                 ps.setString(index++, diamondStone.getDescription());
                 ps.setBoolean(index++, diamondStone.isValid());
-                ps.setString(index++, diamondStone.getDataId());
-                ps.setString(index++, diamondStone.getGroup());
+                ps.setString(index++, diamondStone.getId());
             }
         };
         jt.update(sql, pss);
@@ -159,7 +153,7 @@ public class PersistService {
         }
     }
 
-    public DiamondStone findConfigInfo(long id) {
+    public DiamondStone findConfigInfo(String id) {
         try {
             String sql = "select id,data_id,group_id,content,description,valid " +
                     " from " + tableName + " where id=? order by group_id, data_id";

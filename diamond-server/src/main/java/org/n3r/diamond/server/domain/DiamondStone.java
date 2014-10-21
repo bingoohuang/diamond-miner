@@ -3,7 +3,7 @@ package org.n3r.diamond.server.domain;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class DiamondStone {
-    private long id;
+    private String id;
     private String group;
     private String dataId;
     private String content;
@@ -51,7 +51,7 @@ public class DiamondStone {
     }
 
     public DiamondStone(String dataId, String group, String content, String description, boolean valid) {
-        super();
+        this.id = group + "^" + dataId;
         this.dataId = dataId;
         this.content = content;
         this.group = group;
@@ -60,17 +60,13 @@ public class DiamondStone {
         this.valid = valid;
     }
 
-    public void createMd5() {
+    public void createIdAndMd5() {
+        this.id = group + "^" + dataId;
         if (this.content != null) this.md5 = DigestUtils.md5Hex(this.content);
     }
 
-    public long getId() {
+    public String getId() {
         return id;
-    }
-
-
-    public void setId(long id) {
-        this.id = id;
     }
 
 

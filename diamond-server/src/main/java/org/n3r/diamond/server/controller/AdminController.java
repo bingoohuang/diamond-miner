@@ -91,7 +91,7 @@ public class AdminController {
 
     @RequestMapping(params = "method=deleteConfig", method = RequestMethod.GET)
     public String deleteConfig(HttpServletRequest request, HttpServletResponse response,
-                               @RequestParam("id") long id,
+                               @RequestParam("id") String id,
                                ModelMap modelMap) {
         diamondService.removeConfigInfo(id);
         String result = Json.processJson(request, modelMap, "Delete successfully!");

@@ -51,7 +51,7 @@ public class DiamondService {
         return group + "/" + dataId;
     }
 
-    public void removeConfigInfo(long id) {
+    public void removeConfigInfo(String id) {
         try {
             DiamondStone diamondStone = persistService.findConfigInfo(id);
             diskService.removeConfigInfo(diamondStone.getDataId(), diamondStone.getGroup());
