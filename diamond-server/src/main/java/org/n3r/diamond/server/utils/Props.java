@@ -13,7 +13,7 @@ public class Props {
     static Logger log = LoggerFactory.getLogger(Props.class);
 
     public static Properties tryProperties(String pathname, String appHome) {
-        return tryProperties(pathname, appHome, Silent.OFF);
+        return tryProperties(pathname, appHome, Silent.ON);
     }
 
     public static Properties tryProperties(String pathname, String appHome, Silent silent) {
