@@ -61,7 +61,7 @@ create index idx_diamond_stones on diamond_stones(data_id, group_id);
 
 ```sql
     create user 'diamond'@'%' identified by 'diamond';
-    grant all privileges on diamond.* to diamond@'localhost' identified by 'diamond';
+    grant all privileges on diamond.* to diamond@'%';
 ```
 
 ## Setup diamond-server
