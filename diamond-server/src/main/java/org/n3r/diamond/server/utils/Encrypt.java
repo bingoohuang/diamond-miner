@@ -4,7 +4,6 @@ import org.n3r.diamond.server.security.Pbe;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

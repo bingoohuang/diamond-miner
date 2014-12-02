@@ -4,6 +4,7 @@ import com.alibaba.druid.pool.DruidDataSource;
 import org.n3r.diamond.server.domain.DiamondStone;
 import org.n3r.diamond.server.domain.Page;
 import org.n3r.diamond.server.domain.PageHelper;
+import org.n3r.diamond.server.utils.Encrypt;
 import org.n3r.diamond.server.utils.Props;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -50,7 +51,7 @@ public class PersistService {
 
     private static String getPropStr(Properties props, String name, String defaultValue) {
         String srcValue = props.getProperty(name, defaultValue);
-        if (srcValue != null) return srcValue;
+        if (srcValue != null) return Encrypt.tryDecrypt(srcValue, name);
 
         throw new IllegalArgumentException("property " + name + " is illegal");
     }
