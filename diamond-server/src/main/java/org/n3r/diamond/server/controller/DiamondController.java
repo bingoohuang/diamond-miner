@@ -49,13 +49,13 @@ public class DiamondController {
         response.setHeader(Constants.CONTENT_MD5, md5);
 
         // 正在被修改，返回304，这里的检查并没有办法保证一致性，因此做double-check尽力保证
-        if (diskService.isUnderModifing(dataId, group)) {
+        if (diskService.isUnderModifying(dataId, group)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             return "304";
         }
         File path = diskService.getDiamondFile(dataId, group);
         // 再次检查
-        if (diskService.isUnderModifing(dataId, group)) {
+        if (diskService.isUnderModifying(dataId, group)) {
             response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
             return "304";
         }

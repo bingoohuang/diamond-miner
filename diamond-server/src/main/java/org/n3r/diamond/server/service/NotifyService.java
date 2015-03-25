@@ -55,7 +55,7 @@ public class NotifyService {
         HostAndPort hostAndPort = HostAndPort.fromString(server);
 
         String urlString = PROTOCOL + hostAndPort.getHostText() + ":"
-                + hostAndPort.getPortOrDefault(Constants.DEF_DIAMOND_NAMESERVER_PORT)
+                + hostAndPort.getPortOrDefault(Constants.DEF_DIAMOND_NODESERVER_PORT)
                 + URL_PREFIX;
 
         return urlString + "?method=notifyConfigInfo&dataId=" + dataId + "&group=" + group;

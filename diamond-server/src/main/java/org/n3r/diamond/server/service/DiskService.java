@@ -59,7 +59,7 @@ public class DiskService {
         String cacheKey = generateCacheKey(group, dataId);
         // 标记正在写磁盘
         if (modifyMarkCache.putIfAbsent(cacheKey, true) != null)
-            throw new RuntimeException("config info is being motified, dataId=" + dataId + ",group=" + group);
+            throw new RuntimeException("config info is being modified, dataId=" + dataId + ",group=" + group);
 
         try {
             String groupPath = getFilePath(BASE_DIR + separator + group);
@@ -77,7 +77,7 @@ public class DiskService {
         }
     }
 
-    public boolean isUnderModifing(String dataId, String group) {
+    public boolean isUnderModifying(String dataId, String group) {
         return modifyMarkCache.get(generateCacheKey(group, dataId)) != null;
     }
 
@@ -89,7 +89,7 @@ public class DiskService {
         String cacheKey = generateCacheKey(group, dataId);
         // 标记正在写磁盘
         if (modifyMarkCache.putIfAbsent(cacheKey, true) != null)
-            throw new RuntimeException("config info is being motified, dataId=" + dataId + ",group=" + group);
+            throw new RuntimeException("config info is being modified, dataId=" + dataId + ",group=" + group);
 
         try {
             String basePath = getFilePath(BASE_DIR);
@@ -97,9 +97,7 @@ public class DiskService {
 
             String groupPath = getFilePath(BASE_DIR + separator + group);
             File groupDir = new File(groupPath);
-            if (!groupDir.exists()) {
-                return;
-            }
+            if (!groupDir.exists()) return;
 
             String dataPath = getFilePath(BASE_DIR + separator
                     + group + separator + dataId + DIAMOND_STONE_EXT);

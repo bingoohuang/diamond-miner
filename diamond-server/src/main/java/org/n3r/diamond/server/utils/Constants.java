@@ -16,7 +16,7 @@ public interface Constants {
 
     String WORD_SEPARATOR = Character.toString((char) 2);
 
-    int DEF_DIAMOND_NAMESERVER_PORT = 17001;
+    int DEF_DIAMOND_NODESERVER_PORT = 17002;
     String DIAMOND_STONE_EXT = ".diamond";
 
     int BATCH_OP_ERROR = -1;

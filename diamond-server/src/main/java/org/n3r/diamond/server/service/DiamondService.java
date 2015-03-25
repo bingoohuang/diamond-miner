@@ -41,6 +41,11 @@ public class DiamondService {
         }
     }
 
+    public void removeMD5Cache(String dataId, String group) {
+        String md5CacheKey = createMD5CacheKey(dataId, group);
+        contentMD5Cache.remove(md5CacheKey);
+    }
+
     public String getCacheContentMD5(String dataId, String group) {
         String key = createMD5CacheKey(dataId, group);
         return contentMD5Cache.get(key);
@@ -99,6 +104,9 @@ public class DiamondService {
             if (diamondStone != null) {
                 updateMD5Cache(diamondStone);
                 diskService.updateToDisk(diamondStone);
+            } else {
+                removeMD5Cache(dataId, group);
+                diskService.removeConfigInfo(dataId, group);
             }
         } catch (Exception e) {
             log.error("loadConfigInfoToDisk error", e);

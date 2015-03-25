@@ -64,7 +64,7 @@
 
 <body>
 <c:import url="/jsp/common/message.jsp"/>
-<center><h1><strong>Configuration List</strong></h1></center>
+<div style="text-align: center;"><h1><strong>Configuration List (Version:2015-03-25 11:48:13)</strong></h1></div>
 <p align='center'>
 
 <form name="queryForm" action="${adminUrl}">
