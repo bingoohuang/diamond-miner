@@ -93,149 +93,40 @@
         </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>jetty</id>
-            <properties>
-                <profile.packaging>war</profile.packaging>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.tomcat</groupId>
-                    <artifactId>jasper</artifactId>
-                    <version>6.0.37</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-webapp</artifactId>
-                    <version>8.1.7.v20120910</version>
-                </dependency>
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <version>2.3</version>
-                        <configuration>
-                            <archive>
-                                <manifest>
-                                    <mainClass>Main</mainClass>
-                                </manifest>
-                            </archive>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.7</version>
-                        <executions>
-                            <execution>
-                                <id>main-class-placement</id>
-                                <phase>prepare-package</phase>
-                                <configuration>
-                                    <target>
-                                        <move todir="${project.build.directory}/${project.artifactId}-${project.version}/">
-                                            <fileset dir="${project.build.directory}/classes/">
-                                                <include name="Main.class"/>
-                                            </fileset>
-                                        </move>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>2.5.1</version>
-                        <executions>
-                            <execution>
-                                <id>jetty-classpath</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>unpack-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <includeGroupIds>org.eclipse.jetty, org.eclipse.jetty.orbit</includeGroupIds>
-                                    <includeScope>provided</includeScope>
-                                    <!-- remove some files in order to decrease size -->
-                                    <excludes>*, about_files/*, META-INF/*</excludes>
-                                    <outputDirectory>
-                                        ${project.build.directory}/${project.artifactId}-${project.version}
-                                    </outputDirectory>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.mortbay.jetty</groupId>
-                        <artifactId>jetty-maven-plugin</artifactId>
-                        <version>8.1.0.v20120127</version>
-                        <configuration>
-                            <webAppConfig>
-                                <contextPath>/diamond-server</contextPath>
-                            </webAppConfig>
-                            <connectors>
-                                <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                                    <port>17002</port>
-                                    <maxIdleTime>60000</maxIdleTime>
-                                    <reuseAddress>false</reuseAddress>
-                                </connector>
-                            </connectors>
-                        </configuration>
-                    </plugin>
-                </plugins>
-
-            </build>
-        </profile>
-        <profile>
-            <id>war</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <profile.packaging>war</profile.packaging>
-            </properties>
-            <dependencies>
-                <dependency>
-                    <groupId>org.eclipse.jetty</groupId>
-                    <artifactId>jetty-webapp</artifactId>
-                    <version>8.1.7.v20120910</version>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
-            <build>
-                <finalName>diamond-server</finalName>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>2.5.1</version>
-                        <configuration>
-                            <source>1.6</source>
-                            <target>1.6</target>
-                            <encoding>UTF-8</encoding>
-                            <excludes>
-                                <exclude>Main.java</exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-war-plugin</artifactId>
-                        <version>2.3</version>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <id>tomcat-run</id>
+                        <goals>
+                            <goal>exec-war-only</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <path>/diamond-server</path>
+                            <finalName>${project.artifactId}-${project.version}-exec.war</finalName>
+
+                            <extraDependencies>
+                                <extraDependency>
+                                    <groupId>taglibs</groupId>
+                                    <artifactId>standard</artifactId>
+                                    <version>1.1.2</version>
+                                </extraDependency>
+                                <extraDependency>
+                                    <groupId>javax.servlet</groupId>
+                                    <artifactId>jstl</artifactId>
+                                    <version>1.2</version>
+                                </extraDependency>
+                            </extraDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
