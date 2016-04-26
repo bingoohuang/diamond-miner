@@ -62,7 +62,7 @@ create index idx_diamond_stones on diamond_stones(data_id, group_id);
 ```sql
     create user 'diamond'@'%' identified by 'diamond';
     grant all privileges on diamond.* to diamond@'%';
-    
+
     create user 'diamond'@'localhost' identified by 'diamond';
     grant all privileges on diamond.* to diamond@'localhost';
 ```
@@ -73,7 +73,7 @@ There are two ways to setup diamond-servers. One is download the diamond-server 
 
 + source code way
     1. download the diamond-server code from github
-    2. run the command: 
+    2. run the command:
 ```
 mvn jetty:run
 ```
@@ -113,8 +113,8 @@ db.poolPreparedStatements=true
 
 If you have the different mysql ip, user or passoword, you can have two way to change your connection info:
 
-+ place a diamond-server.properties in your current directory(same directory with diamond-server-0.0.1.war)
-+ update WEB-INF/classes/diamond-server.properties in diamond-server-0.0.1.war.
++ place a diamond-jdbc.properties in your current directory(same directory with diamond-server-0.0.1.war)
++ update WEB-INF/classes/diamond-jdbc.properties in diamond-server-0.0.1.war.
 
 After you setup diamond-server successfully, you can open [http://localhost:17002/diamond-server](http://localhost:17002/diamond-server) to login in diamond-server console. The default username and password is admin/admin.
 
@@ -173,20 +173,20 @@ String foobar = DiamondMiner.getString("foobar");
     1. Create a cache updater class, and it should implement Callable interface.
 
             package org.n3r.diamond.client;
-            
+
             import org.n3r.diamond.client.cache.ParamsAppliable;
             import java.util.Arrays;
             import java.util.Date;
             import java.util.concurrent.Callable;
-                
+
             public class DemoUpdater implements Callable<String>, ParamsAppliable {
                 private String param;
-                
+
                 @Override
                 public String call() {
                     return param + new Date();
                 }
-                
+
                 @Override
                 public void applyParams(String[] params) {
                     this.param = Arrays.toString(params);
@@ -209,7 +209,7 @@ String foobar = DiamondMiner.getString("foobar");
 # Notes
 
 + garbled characters on TOMCAT console: add `-Dfile.encoding=UTF-8` to VM options
-+ check charset in MYSQL : 
++ check charset in MYSQL :
 
 ```mysql
 show create database diamond;
@@ -251,4 +251,3 @@ ALTER TABLE `config_info` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
     * [diamond专题（三）- diamond架构](http://jm-blog.aliapp.com/?p=1606)
     * [diamond专题（四）- 容灾机制](http://jm-blog.aliapp.com/?p=1617)
     * [ZooKeeper和Diamond有什么不同](http://jm-blog.aliapp.com/?p=2561)
-
