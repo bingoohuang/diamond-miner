@@ -69,33 +69,18 @@ create index idx_diamond_stones on diamond_stones(data_id, group_id);
 
 ## Setup diamond-server
 
-There are two ways to setup diamond-servers. One is download the diamond-server code and then run mvn jetty:run. The other is download the war package diamond-server-0.0.1.war and then run java -jar diamond-server-0.0.1.war.
-
-+ source code way
     1. download the diamond-server code from github
     2. run the command:
 ```
-mvn jetty:run
-```
-or
-```
-mvn package && cd target && java -jar dimaond-server-0.0.1.war
+mvn package && cd target && java -jar diamond-server-0.0.8-exec.war -httpPort 17002
 ```
 
-
-+ war package way
-    1. download [diamond-server-0.0.1.war](https://github.com/bingoohuang/diamond-miner/releases/download/v0.0.1/diamond-server-0.0.1.war)
-    2. run the command:
-```
-java -jar diamond-server-0.0.1.war
-```
 
 + Cluster example
-    1. java -Dport=18001 -jar diamond-server-0.0.1.war
-    2. java -Dport=18002 -jar diamond-server-0.0.1.war
+    1. java -jar diamond-server-0.0.8-exec.war -httpPort 18001
+    2. java -jar diamond-server-0.0.8-exec.war -httpPort 18002
     3. Add config: dataId=nameservers, group=admin, content=localhost:18001 localhost:18002
 
-The default port of diamond-server is 17002, you can change it by java -Dport=8080 -jar diamond-server-0.0.1.war or mvn -Dport=8080 jetty:run。
 
 The default mysql connection is:
 
@@ -111,16 +96,17 @@ db.maxWait=5
 db.poolPreparedStatements=true
 ```
 
-If you have the different mysql ip, user or passoword, you can have two way to change your connection info:
+If you have the different mysql ip, user or passoword, you can have several ways to change your connection info:
 
-+ place a diamond-jdbc.properties in your current directory(same directory with diamond-server-0.0.1.war)
-+ update WEB-INF/classes/diamond-jdbc.properties in diamond-server-0.0.1.war.
++ put a diamond-jdbc.properties in your current directory(same directory with diamond-server-0.0.X.war).
++ update WEB-INF/classes/diamond-jdbc.properties in diamond-server-0.0.X.war.
++ put a diamond-jdbc.properties in ~/.diamond-server/。
 
 After you setup diamond-server successfully, you can open [http://localhost:17002/diamond-server](http://localhost:17002/diamond-server) to login in diamond-server console. The default username and password is admin/admin.
 
 ## Try to use diamond-client
 + Setup connection info for client
-    * Create diamond-client.properties on the classpath root.
+    * Create diamond-client.properties in the classpath root or in ~/.diamond-client/.
     * Add one line to diamond-client.properties
 
 ```
@@ -135,11 +121,11 @@ DiamondServer.address=localhost:18001 localhost:18002
 + Simple use examples
 
 ```java
-String foo = DiamondMiner.getString("foo"); // foofoo
-String bar = DiamondMiner.getStone("my_group", "bar"); // barbar
+String foo = new Miner().getString("foo"); // foofoo
+String bar = new Miner().getStone("my_group", "bar"); // barbar
 
 int defaultTimeout = 10;
-int timeout = DiamondMiner.getInt("timeout", defaultTimeout);
+int timeout = new Miner().getInt("timeout", defaultTimeout);
 ```
 
 + Add a listener to repsonse config changing.
