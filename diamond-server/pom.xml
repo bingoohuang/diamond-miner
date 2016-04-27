@@ -99,6 +99,7 @@
             <plugin>
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
+                <!-- ref: https://tomcat.apache.org/maven-plugin-trunk/executable-war-jar.html -->
                 <version>2.1</version>
                 <executions>
                     <execution>
