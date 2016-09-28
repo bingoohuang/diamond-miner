@@ -28,6 +28,7 @@ a java config system base on taobao diamond, main changes included:
 + create table
 
 ```sql
+-- for MySQL
 create table diamond_stones (
     id varchar(255) not null,
     data_id varchar(255) not null,
@@ -43,6 +44,7 @@ create table diamond_stones (
 ```
 
 ```sql
+-- for ORACLE 
 create table diamond_stones (
     id varchar2(400) not null primary key,
     data_id varchar2(255) not null,
