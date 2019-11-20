@@ -69,6 +69,15 @@
         <url-pattern>*.jspx</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>CaptchaServlet</servlet-name>
+        <servlet-class>com.wf.captcha.servlet.CaptchaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CaptchaServlet</servlet-name>
+        <url-pattern>/captcha</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>/jsp/login.jsp</welcome-file>
     </welcome-file-list>
