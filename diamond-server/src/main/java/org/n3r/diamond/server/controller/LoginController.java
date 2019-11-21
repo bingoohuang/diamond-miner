@@ -1,5 +1,6 @@
 package org.n3r.diamond.server.controller;
 
+import com.wf.captcha.utils.CaptchaUtil;
 import org.n3r.diamond.server.service.AdminService;
 import org.n3r.diamond.server.utils.Json;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,18 @@ public class LoginController {
 
 
     @RequestMapping(params = "method=login", method = RequestMethod.POST)
-    public String login(HttpServletRequest request, @RequestParam("username") String username,
-                        @RequestParam("password") String password, ModelMap modelMap) {
+    public String login(HttpServletRequest request,
+                        @RequestParam("username") String username,
+                        @RequestParam("password") String password,
+                        @RequestParam("captcha") String captcha,
+                        ModelMap modelMap) {
+        if (!CaptchaUtil.ver(captcha, request)) {
+            CaptchaUtil.clear(request);
+            modelMap.addAttribute("message", "Login failed, captcha mismatch");
+            return "login";
+        }
+        CaptchaUtil.clear(request);
+
         if (adminService.login(username, password)) {
             request.getSession().setAttribute("user", username);
 

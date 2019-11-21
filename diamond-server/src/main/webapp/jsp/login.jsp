@@ -19,16 +19,26 @@
     <c:url var="url" value="/login.do">
         <c:param name="method" value="login"/>
     </c:url>
+    <c:url var="captcha" value="/captcha">
+    </c:url>
 
     <form method='post' action="${url}">
         <table>
             <tr>
                 <td>Username:</td>
-                <td><input type='text' name="username"/></td>
+                <td><input type='text' name="username" autocomplete="off"/></td>
             </tr>
             <tr>
                 <td>Password:</td>
-                <td><input type='password' name="password"/></td>
+                <td><input type='password' name="password" autocomplete="off"/></td>
+            </tr>
+            <tr>
+                <td>Captcha:</td>
+                <td><input type='text' name="captcha" autocomplete="off"/></td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td><img src="${captcha}" width="132px" height="21px"/></td>
             </tr>
             <tr>
                 <td colspan="2" align='center'>
